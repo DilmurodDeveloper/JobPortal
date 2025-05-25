@@ -1,12 +1,13 @@
-﻿using System.Security.Claims;
-using JobPortalAPI.Data;
+﻿using JobPortalAPI.Data;
 using JobPortalAPI.DTOs;
+using JobPortalAPI.Enums;
 using JobPortalAPI.Models;
 using JobPortalAPI.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace JobPortalAPI.Controllers
 {
@@ -17,7 +18,7 @@ namespace JobPortalAPI.Controllers
         private readonly ApplicationDbContext _db;
         private readonly IPasswordHasher<User> _hasher;
         private readonly JwtService _jwt;
-        
+
         public AuthController(ApplicationDbContext db, IPasswordHasher<User> hasher, JwtService jwt)
         {
             _db = db;
@@ -31,12 +32,13 @@ namespace JobPortalAPI.Controllers
             if (await _db.Users.AnyAsync(u => u.Email == dto.Email))
                 return BadRequest("Email already registered");
 
+            Role roleEnum = dto.Role ?? Role.User;
             var user = new User
             {
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
                 Email = dto.Email,
-                Role = dto.Role ?? "User",
+                Role = roleEnum,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -86,14 +88,20 @@ namespace JobPortalAPI.Controllers
         [HttpGet("me")]
         public IActionResult GetProfile()
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return Ok($"Yours ID: {userId}");
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+                return Unauthorized();
+
+            return Ok(new { UserId = userId });
         }
 
         [Authorize]
         [HttpGet("admin-area")]
         public IActionResult AdminOnly()
         {
+            if (!User.IsInRole(Role.Admin.ToString()))
+                return Forbid();
+
             return Ok("Only admins can see it.");
         }
     }
