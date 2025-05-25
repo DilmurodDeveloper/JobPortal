@@ -14,5 +14,7 @@ namespace JobPortalAPI.Models
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         public UserProfile? Profile { get; set; }
+        public string? RefreshToken { get; set; }
+        public DateTime? RefreshTokenExpiryTime { get; set; }
     }
 }

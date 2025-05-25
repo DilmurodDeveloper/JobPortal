@@ -84,6 +84,32 @@ namespace JobPortalAPI.Controllers
             return Ok(new { token });
         }
 
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh(TokenRequestDto tokenRequest)
+        {
+            var principal = _jwt.GetPrincipalFromExpiredToken(tokenRequest.AccessToken);
+            if (principal == null)
+                return BadRequest("Invalid access token or refresh token");
+
+            var email = principal.Identity?.Name;
+            var user = await _db.Users.SingleOrDefaultAsync(u => u.Email == email);
+            if (user == null || user.RefreshToken != tokenRequest.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+                return BadRequest("Invalid refresh token");
+
+            var newAccessToken = _jwt.GenerateToken(user);
+            var newRefreshToken = _jwt.GenerateRefreshToken();
+
+            user.RefreshToken = newRefreshToken;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);  
+            await _db.SaveChangesAsync();
+
+            return Ok(new
+            {
+                AccessToken = newAccessToken,
+                RefreshToken = newRefreshToken
+            });
+        }
+
         [Authorize]
         [HttpGet("me")]
         public IActionResult GetProfile()
@@ -95,7 +121,7 @@ namespace JobPortalAPI.Controllers
             return Ok(new { UserId = userId });
         }
 
-        [Authorize]
+        [Authorize(Roles = nameof(Role.Admin))]
         [HttpGet("admin-area")]
         public IActionResult AdminOnly()
         {
