@@ -1,4 +1,4 @@
-﻿namespace JobPortalAPI.DTOs
+﻿namespace JobPortalAPI.DTOs.Auth
 {
     public class LoginDto
     {

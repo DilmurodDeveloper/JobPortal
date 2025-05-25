@@ -1,5 +1,4 @@
 ﻿using JobPortalAPI.Data;
-using JobPortalAPI.DTOs;
 using JobPortalAPI.Enums;
 using JobPortalAPI.Models;
 using JobPortalAPI.Services;
@@ -8,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using JobPortalAPI.DTOs.Auth;
+using JobPortalAPI.DTOs.Token;
 
 namespace JobPortalAPI.Controllers
 {

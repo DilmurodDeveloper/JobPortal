@@ -1,6 +1,6 @@
 ﻿using JobPortalAPI.Enums;
 
-namespace JobPortalAPI.DTOs
+namespace JobPortalAPI.DTOs.Job
 {
     public class JobUpdateDto
     {

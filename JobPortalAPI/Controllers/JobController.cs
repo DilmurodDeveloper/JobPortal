@@ -1,5 +1,6 @@
-﻿using JobPortalAPI.Data;
-using JobPortalAPI.DTOs;
+﻿using System.Security.Claims;
+using JobPortalAPI.Data;
+using JobPortalAPI.DTOs.Job;
 using JobPortalAPI.Enums;
 using JobPortalAPI.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -67,6 +68,8 @@ namespace JobPortalAPI.Controllers
         [Authorize(Roles = nameof(Role.Employer) + "," + nameof(Role.Admin))]
         public async Task<IActionResult> Create(JobCreateDto dto)
         {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
             var jobPost = new JobPost
             {
                 Title = dto.Title,
@@ -75,8 +78,7 @@ namespace JobPortalAPI.Controllers
                 Location = dto.Location,
                 Salary = dto.Salary,
                 JobType = dto.JobType,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                UserId = userId
             };
 
             await _db.JobPosts.AddAsync(jobPost);

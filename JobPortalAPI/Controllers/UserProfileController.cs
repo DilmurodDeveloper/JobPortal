@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 using JobPortalAPI.Data;
-using JobPortalAPI.DTOs;
+using JobPortalAPI.DTOs.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
