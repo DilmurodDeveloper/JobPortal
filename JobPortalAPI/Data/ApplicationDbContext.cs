@@ -7,6 +7,7 @@ namespace JobPortalAPI.Data
     {
         public DbSet<User> Users { get; set; }
         public DbSet<UserProfile> UserProfiles { get; set; }
+        public DbSet<JobPost> JobPosts { get; set; } = null!;
 
         public ApplicationDbContext(DbContextOptions options) 
             : base(options) { }
