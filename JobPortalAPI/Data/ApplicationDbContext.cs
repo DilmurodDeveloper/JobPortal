@@ -5,11 +5,20 @@ namespace JobPortalAPI.Data
 {
     public class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext(DbContextOptions options)
-            : base(options)
+        public DbSet<User> Users { get; set; }
+        public DbSet<UserProfile> UserProfiles { get; set; }
+
+        public ApplicationDbContext(DbContextOptions options) 
+            : base(options) { }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Profile)
+                .WithOne(p => p.User)
+                .HasForeignKey<UserProfile>(p => p.UserId);
         }
-       
-        public DbSet<User> Users { get; set; } = null!;
     }
 }

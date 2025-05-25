@@ -12,7 +12,7 @@ namespace JobPortalAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthController : Controller
+    public class AuthController : ControllerBase
     {
         private readonly ApplicationDbContext _db;
         private readonly IPasswordHasher<User> _hasher;
@@ -29,17 +29,38 @@ namespace JobPortalAPI.Controllers
         public async Task<IActionResult> Register(RegisterDto dto)
         {
             if (await _db.Users.AnyAsync(u => u.Email == dto.Email))
-                return BadRequest("This email is on the list");
+                return BadRequest("Email already registered");
 
             var user = new User
             {
-                FullName = dto.FullName,
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
                 Email = dto.Email,
-                Role = dto.Role ?? "User"
+                Role = dto.Role ?? "User",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
             };
 
             user.PasswordHash = _hasher.HashPassword(user, dto.Password);
+
             await _db.Users.AddAsync(user);
+            await _db.SaveChangesAsync();
+
+            var profile = new UserProfile
+            {
+                UserId = user.Id,
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                PhoneNumber = null,
+                Address = null,
+                Bio = null,
+                ProfilePictureUrl = null,
+                Location = null,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            await _db.UserProfiles.AddAsync(profile);
             await _db.SaveChangesAsync();
 
             var token = _jwt.GenerateToken(user);
