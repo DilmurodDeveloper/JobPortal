@@ -1,4 +1,6 @@
-﻿namespace JobPortalAPI.Models
+﻿using JobPortalAPI.Enums;
+
+namespace JobPortalAPI.Models
 {
     public class User
     {
@@ -7,7 +9,7 @@
         public string? LastName { get; set; }
         public string? Email { get; set; }
         public string? PasswordHash { get; set; } 
-        public string Role { get; set; } = "User";
+        public Role Role { get; set; } = Role.User;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
