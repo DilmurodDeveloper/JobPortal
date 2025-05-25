@@ -1,7 +1,9 @@
-﻿using JobPortalAPI.Data;
+﻿using System.Security.Claims;
+using JobPortalAPI.Data;
 using JobPortalAPI.DTOs;
 using JobPortalAPI.Models;
 using JobPortalAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -33,6 +35,7 @@ namespace JobPortalAPI.Controllers
             {
                 FullName = dto.FullName,
                 Email = dto.Email,
+                Role = dto.Role ?? "User"
             };
 
             user.PasswordHash = _hasher.HashPassword(user, dto.Password);
@@ -56,6 +59,21 @@ namespace JobPortalAPI.Controllers
 
             var token = _jwt.GenerateToken(user);
             return Ok(new { token });
+        }
+
+        [Authorize]
+        [HttpGet("me")]
+        public IActionResult GetProfile()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return Ok($"Yours ID: {userId}");
+        }
+
+        [Authorize]
+        [HttpGet("admin-area")]
+        public IActionResult AdminOnly()
+        {
+            return Ok("Only admins can see it.");
         }
     }
 }
