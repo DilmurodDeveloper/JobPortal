@@ -1,4 +1,4 @@
-﻿namespace JobPortalAPI.DTOs
+﻿namespace JobPortalAPI.DTOs.Token
 {
     public class TokenRequestDto
     {

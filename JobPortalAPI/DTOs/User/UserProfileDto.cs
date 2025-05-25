@@ -1,4 +1,4 @@
-﻿namespace JobPortalAPI.DTOs
+﻿namespace JobPortalAPI.DTOs.User
 {
     public class UserProfileDto
     {
