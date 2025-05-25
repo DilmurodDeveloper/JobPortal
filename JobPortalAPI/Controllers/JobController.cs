@@ -1,6 +1,6 @@
 ﻿using JobPortalAPI.Data;
 using JobPortalAPI.DTOs;
-using JobPortalAPI.Enums;  // Enum uchun using qo‘shildi
+using JobPortalAPI.Enums;
 using JobPortalAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,10 +21,37 @@ namespace JobPortalAPI.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] JobSearchDto searchDto)
         {
-            var jobs = await _db.JobPosts.ToListAsync();
-            return Ok(jobs);
+            if (searchDto.Page <= 0) searchDto.Page = 1;
+            if (searchDto.PageSize <= 0 || searchDto.PageSize > 50) searchDto.PageSize = 10;
+
+            var query = _db.JobPosts.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchDto.Title))
+                query = query.Where(j => j.Title.Contains(searchDto.Title));
+
+            if (!string.IsNullOrWhiteSpace(searchDto.Location))
+                query = query.Where(j => j.Location.Contains(searchDto.Location));
+
+            if (searchDto.JobType.HasValue)
+                query = query.Where(j => j.JobType == searchDto.JobType.Value);
+
+            var totalCount = await query.CountAsync();
+
+            var jobs = await query
+                .OrderByDescending(j => j.CreatedAt)
+                .Skip((searchDto.Page - 1) * searchDto.PageSize)
+                .Take(searchDto.PageSize)
+                .ToListAsync();
+
+            return Ok(new
+            {
+                TotalCount = totalCount,
+                Page = searchDto.Page,
+                PageSize = searchDto.PageSize,
+                Data = jobs
+            });
         }
 
         [HttpGet("{id}")]
@@ -47,7 +74,9 @@ namespace JobPortalAPI.Controllers
                 Company = dto.Company,
                 Location = dto.Location,
                 Salary = dto.Salary,
-                JobType = dto.JobType
+                JobType = dto.JobType,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
             };
 
             await _db.JobPosts.AddAsync(jobPost);
