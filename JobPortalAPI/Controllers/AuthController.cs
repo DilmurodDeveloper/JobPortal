@@ -12,7 +12,7 @@ namespace JobPortalAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthController : Controller
+    public class AuthController : ControllerBase
     {
         private readonly ApplicationDbContext _db;
         private readonly IPasswordHasher<User> _hasher;
