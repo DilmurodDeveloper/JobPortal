@@ -1,5 +1,6 @@
 ﻿using JobPortalAPI.Data;
 using JobPortalAPI.DTOs;
+using JobPortalAPI.Enums;  // Enum uchun using qo‘shildi
 using JobPortalAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -31,12 +32,12 @@ namespace JobPortalAPI.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var job = await _db.JobPosts.FindAsync(id);
-            if (job == null) return NotFound();            
+            if (job == null) return NotFound();
             return Ok(job);
         }
 
         [HttpPost]
-        [Authorize(Roles = "Employer,Admin")]
+        [Authorize(Roles = nameof(Role.Employer) + "," + nameof(Role.Admin))]
         public async Task<IActionResult> Create(JobCreateDto dto)
         {
             var jobPost = new JobPost
@@ -56,7 +57,7 @@ namespace JobPortalAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "Employer,Admin")]
+        [Authorize(Roles = nameof(Role.Employer) + "," + nameof(Role.Admin))]
         public async Task<IActionResult> Update(int id, JobUpdateDto jobDto)
         {
             var existingJob = await _db.JobPosts.FindAsync(id);
@@ -75,12 +76,12 @@ namespace JobPortalAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = nameof(Role.Admin))]
         public async Task<IActionResult> Delete(int id)
         {
             var job = await _db.JobPosts.FindAsync(id);
             if (job == null) return NotFound();
-            
+
             _db.JobPosts.Remove(job);
             await _db.SaveChangesAsync();
             return NoContent();
