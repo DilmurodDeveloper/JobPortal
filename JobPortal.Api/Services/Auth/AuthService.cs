@@ -1,4 +1,6 @@
-﻿namespace JobPortal.Api.Services.Auth
+﻿using JobPortal.Api.Models.Foundations.Users;
+
+namespace JobPortal.Api.Services.Auth
 {
     public class AuthService : IAuthService
     {

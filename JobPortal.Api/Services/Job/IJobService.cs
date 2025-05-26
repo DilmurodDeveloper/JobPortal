@@ -1,4 +1,6 @@
-﻿namespace JobPortal.Api.Services.Job
+﻿using JobPortal.Api.Models.Foundations.JobPosts;
+
+namespace JobPortal.Api.Services.Job
 {
     public interface IJobService
     {

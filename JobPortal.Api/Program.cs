@@ -1,3 +1,5 @@
+using JobPortal.Api.Models.Foundations.Users;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();

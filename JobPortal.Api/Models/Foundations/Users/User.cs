@@ -1,4 +1,4 @@
-﻿namespace JobPortal.Api.Models
+﻿namespace JobPortal.Api.Models.Foundations.Users
 {
     public class User
     {

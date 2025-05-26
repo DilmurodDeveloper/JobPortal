@@ -1,4 +1,9 @@
-﻿namespace JobPortal.Api.Data
+﻿using JobPortal.Api.Models.Foundations.Applications;
+using JobPortal.Api.Models.Foundations.JobPosts;
+using JobPortal.Api.Models.Foundations.UserProfiles;
+using JobPortal.Api.Models.Foundations.Users;
+
+namespace JobPortal.Api.Data
 {
     public class ApplicationDbContext : DbContext
     {

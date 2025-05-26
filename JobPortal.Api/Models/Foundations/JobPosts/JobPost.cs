@@ -1,4 +1,4 @@
-﻿namespace JobPortal.Api.Models
+﻿namespace JobPortal.Api.Models.Foundations.JobPosts
 {
     public class JobPost
     {
