@@ -2,16 +2,17 @@ using System.Text;
 using JobPortalAPI.Data;
 using JobPortalAPI.Models;
 using JobPortalAPI.Services;
-using Microsoft.OpenApi.Models; 
-using JobPortalAPI.Services.Job;
-using JobPortalAPI.Services.Auth;
 using JobPortalAPI.Services.Admin;
+using JobPortalAPI.Services.Application;
+using JobPortalAPI.Services.Auth;
+using JobPortalAPI.Services.Job;
 using JobPortalAPI.Services.Resume;
+using JobPortalAPI.Services.UserProfile;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using JobPortalAPI.Services.Application;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.OpenApi.Models; 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,6 +61,7 @@ builder.Services.AddScoped<IApplicationService, ApplicationService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJobService, JobService>();
 builder.Services.AddScoped<IResumeService, ResumeService>();
+builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 
 builder.Services.AddAuthentication(options =>
 {
