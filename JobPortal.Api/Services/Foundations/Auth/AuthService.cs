@@ -1,16 +1,20 @@
-﻿namespace JobPortal.Api.Services.Foundations.Auth
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace JobPortal.Api.Services.Foundations.Auth
 {
     public class AuthService : IAuthService
     {
         private readonly ApplicationDbContext _db;
         private readonly IPasswordHasher<User> _hasher;
+        private readonly IEmailService _emailService;
         private readonly JwtService _jwt;
 
-        public AuthService(ApplicationDbContext db, IPasswordHasher<User> hasher, JwtService jwt)
+        public AuthService(ApplicationDbContext db, IPasswordHasher<User> hasher, JwtService jwt, IEmailService emailService)
         {
             _db = db;
             _hasher = hasher;
             _jwt = jwt;
+            _emailService = emailService;
         }
 
         public async Task<string> RegisterAsync(RegisterDto dto)
@@ -84,6 +88,72 @@
                 AccessToken = newAccessToken,
                 RefreshToken = newRefreshToken
             };
+        }
+
+        public async Task LogoutAsync(int userId)
+        {
+            var user = await _db.Users.FindAsync(userId);
+            if (user != null)
+            {
+                user.RefreshToken = null;
+                user.RefreshTokenExpiryTime = null;
+                await _db.SaveChangesAsync();
+            }
+        }
+
+        public async Task SendResetPasswordTokenAsync(string email)
+        {
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (user == null) return;
+
+            var token = Guid.NewGuid().ToString(); 
+            await _emailService.SendAsync(email, "Reset your password", $"Reset token: {token}");
+        }
+
+        public async Task ResetPasswordAsync(ResetPasswordDto dto)
+        {
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
+            if (user == null) throw new Exception("User not found");
+
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+            await _db.SaveChangesAsync();
+        }
+
+        public async Task ChangePasswordAsync(int userId, ChangePasswordDto dto)
+        {
+            var user = await _db.Users.FindAsync(userId);
+            if (user == null) throw new Exception("User not found");
+
+            if (!BCrypt.Net.BCrypt.Verify(dto.OldPassword, user.PasswordHash))
+                throw new Exception("Current password is incorrect");
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+            await _db.SaveChangesAsync();
+        }
+
+        public async Task ForgotPasswordAsync(string email)
+        {
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
+
+            if (user == null)
+            {
+                return;
+            }
+
+            var resetToken = Guid.NewGuid().ToString();
+
+            user.PasswordResetToken = resetToken;
+            user.PasswordResetTokenExpiry = DateTime.UtcNow.AddHours(1); 
+
+            await _db.SaveChangesAsync();
+
+            var resetLink = $"https://yourfrontend.com/reset-password?token={resetToken}";
+
+            var subject = "Password Reset Request";
+            var body = $"Click this link to reset your password: {resetLink}";
+
+            await _emailService.SendAsync(email, subject, body);
         }
 
         public int? GetUserIdFromClaims(ClaimsPrincipal user)
