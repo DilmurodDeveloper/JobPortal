@@ -1,6 +1,4 @@
-﻿using JobPortalAPI.Enums;
-
-namespace JobPortalAPI.DTOs.Job
+﻿namespace JobPortalAPI.DTOs.Job
 {
     public class JobCreateDto
     {

@@ -1,11 +1,4 @@
-﻿using System.Security.Claims;
-using JobPortalAPI.DTOs.Job;
-using JobPortalAPI.Enums;
-using JobPortalAPI.Services.Job;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-
-namespace JobPortalAPI.Controllers
+﻿namespace JobPortalAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

@@ -1,6 +1,4 @@
-﻿using JobPortalAPI.Enums;
-
-namespace JobPortalAPI.Models
+﻿namespace JobPortalAPI.Models
 {
     public class User
     {

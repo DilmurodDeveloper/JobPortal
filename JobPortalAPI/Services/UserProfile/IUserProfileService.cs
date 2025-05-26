@@ -1,6 +1,4 @@
-﻿using JobPortalAPI.DTOs.User;
-
-namespace JobPortalAPI.Services.UserProfile
+﻿namespace JobPortalAPI.Services.UserProfile
 {
     public interface IUserProfileService
     {

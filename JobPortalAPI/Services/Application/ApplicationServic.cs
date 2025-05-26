@@ -1,10 +1,4 @@
-﻿using JobPortalAPI.Data;
-using JobPortalAPI.DTOs.Application;
-using JobPortalAPI.Enums;
-using Microsoft.EntityFrameworkCore;
-using ApplicationModel = JobPortalAPI.Models.Application; 
-
-namespace JobPortalAPI.Services.Application
+﻿namespace JobPortalAPI.Services.Application
 {
     public class ApplicationService : IApplicationService
     {

@@ -1,8 +1,4 @@
-﻿using JobPortalAPI.Data;
-using JobPortalAPI.DTOs.User;
-using Microsoft.EntityFrameworkCore;
-
-namespace JobPortalAPI.Services.UserProfile
+﻿namespace JobPortalAPI.Services.UserProfile
 {
     public class UserProfileService : IUserProfileService
     {

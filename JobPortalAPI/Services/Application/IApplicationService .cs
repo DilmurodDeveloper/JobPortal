@@ -1,8 +1,4 @@
-﻿using JobPortalAPI.DTOs.Application;
-using JobPortalAPI.Enums;
-using ApplicationModel = JobPortalAPI.Models.Application;
-
-namespace JobPortalAPI.Services.Application 
+﻿namespace JobPortalAPI.Services.Application 
 {
     public interface IApplicationService
     {

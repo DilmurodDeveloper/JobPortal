@@ -1,9 +1,4 @@
-﻿using System.Security.Claims;
-using JobPortalAPI.DTOs.Auth;
-using JobPortalAPI.DTOs.Token;
-using JobPortalAPI.Models;
-
-namespace JobPortalAPI.Services.Auth
+﻿namespace JobPortalAPI.Services.Auth
 {
     public interface IAuthService
     {

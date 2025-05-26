@@ -1,9 +1,4 @@
-﻿using JobPortalAPI.Data;
-using JobPortalAPI.DTOs.Job;
-using JobPortalAPI.Models;
-using Microsoft.EntityFrameworkCore;
-
-namespace JobPortalAPI.Services.Job
+﻿namespace JobPortalAPI.Services.Job
 {
     public class JobService : IJobService
     {

@@ -1,7 +1,4 @@
-﻿using JobPortalAPI.DTOs.Admin;
-using JobPortalAPI.Enums;
-
-namespace JobPortalAPI.Services.Admin
+﻿namespace JobPortalAPI.Services.Admin
 {
     public interface IAdminService
     {

@@ -1,11 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
-using JobPortalAPI.Models;
-using Microsoft.IdentityModel.Tokens;
-
-namespace JobPortalAPI.Services
+﻿namespace JobPortalAPI.Services.Auth
 {
     public class JwtService
     {

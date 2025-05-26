@@ -1,19 +1,3 @@
-using System.Text;
-using JobPortalAPI.Data;
-using JobPortalAPI.Models;
-using JobPortalAPI.Services;
-using JobPortalAPI.Services.Admin;
-using JobPortalAPI.Services.Application;
-using JobPortalAPI.Services.Auth;
-using JobPortalAPI.Services.Job;
-using JobPortalAPI.Services.Resume;
-using JobPortalAPI.Services.UserProfile;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models; 
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();

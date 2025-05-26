@@ -1,10 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using JobPortalAPI.Enums;
-using JobPortalAPI.Services.Resume;
-
-namespace JobPortalAPI.Controllers
+﻿namespace JobPortalAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

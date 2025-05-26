@@ -1,9 +1,4 @@
-﻿using JobPortalAPI.Data;
-using JobPortalAPI.DTOs.Admin;
-using JobPortalAPI.Enums;
-using Microsoft.EntityFrameworkCore;
-
-namespace JobPortalAPI.Services.Admin
+﻿namespace JobPortalAPI.Services.Admin
 {
     public class AdminService : IAdminService
     {

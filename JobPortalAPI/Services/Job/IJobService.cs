@@ -1,8 +1,4 @@
-﻿using JobPortalAPI.DTOs.Job;
-using JobPortalAPI.Enums;
-using JobPortalAPI.Models;
-
-namespace JobPortalAPI.Services.Job
+﻿namespace JobPortalAPI.Services.Job
 {
     public interface IJobService
     {

@@ -1,6 +1,4 @@
-﻿using JobPortalAPI.Enums;
-
-namespace JobPortalAPI.DTOs.Auth
+﻿namespace JobPortalAPI.DTOs.Auth
 {
     public class RegisterDto
     {

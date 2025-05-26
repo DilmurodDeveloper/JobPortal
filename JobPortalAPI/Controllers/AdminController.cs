@@ -1,10 +1,4 @@
-﻿using JobPortalAPI.DTOs.Admin;
-using JobPortalAPI.Enums;
-using JobPortalAPI.Services.Admin;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-
-namespace JobPortalAPI.Controllers
+﻿namespace JobPortalAPI.Controllers
 {
     [ApiController]
     [Route("api/admin")]

@@ -1,6 +1,4 @@
-﻿using JobPortalAPI.Enums;
-
-namespace JobPortalAPI.DTOs.Admin
+﻿namespace JobPortalAPI.DTOs.Admin
 {
     public class UpdateUserDto
     {

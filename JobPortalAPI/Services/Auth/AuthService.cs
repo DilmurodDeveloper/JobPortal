@@ -1,13 +1,4 @@
-﻿using JobPortalAPI.Data;
-using JobPortalAPI.DTOs.Auth;
-using JobPortalAPI.DTOs.Token;
-using JobPortalAPI.Enums;
-using JobPortalAPI.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
-
-namespace JobPortalAPI.Services.Auth
+﻿namespace JobPortalAPI.Services.Auth
 {
     public class AuthService : IAuthService
     {
@@ -42,7 +33,7 @@ namespace JobPortalAPI.Services.Auth
             await _db.Users.AddAsync(user);
             await _db.SaveChangesAsync();
 
-            var profile = new UserProfile
+            var profile = new JobPortalAPI.Models.UserProfile
             {
                 UserId = user.Id,
                 FirstName = dto.FirstName,
