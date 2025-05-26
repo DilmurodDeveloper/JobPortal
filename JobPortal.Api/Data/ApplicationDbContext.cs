@@ -1,9 +1,4 @@
-﻿using JobPortal.Api.Models.Foundations.Applications;
-using JobPortal.Api.Models.Foundations.JobPosts;
-using JobPortal.Api.Models.Foundations.UserProfiles;
-using JobPortal.Api.Models.Foundations.Users;
-
-namespace JobPortal.Api.Data
+﻿namespace JobPortal.Api.Data
 {
     public class ApplicationDbContext : DbContext
     {
@@ -11,6 +6,7 @@ namespace JobPortal.Api.Data
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<JobPost> JobPosts { get; set; } = null!;
         public DbSet<Application> Applications { get; set; }
+        public DbSet<Resume> Resumes { get; set; }
 
         public ApplicationDbContext(DbContextOptions options)
             : base(options) { }

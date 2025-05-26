@@ -46,6 +46,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJobPostService, JobPostService>();
 builder.Services.AddScoped<IResumeService, ResumeService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddAuthentication(options =>
 {
