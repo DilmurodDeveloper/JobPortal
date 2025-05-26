@@ -3,9 +3,14 @@ using JobPortalAPI.Data;
 using JobPortalAPI.Models;
 using JobPortalAPI.Services;
 using Microsoft.OpenApi.Models; 
-using Microsoft.EntityFrameworkCore;
+using JobPortalAPI.Services.Job;
+using JobPortalAPI.Services.Auth;
+using JobPortalAPI.Services.Admin;
+using JobPortalAPI.Services.Resume;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using JobPortalAPI.Services.Application;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -50,6 +55,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IApplicationService, ApplicationService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IJobService, JobService>();
+builder.Services.AddScoped<IResumeService, ResumeService>();
 
 builder.Services.AddAuthentication(options =>
 {
