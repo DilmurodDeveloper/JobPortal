@@ -1,7 +1,8 @@
-﻿using System.Security.Claims;
-using JobPortalAPI.Enums;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using JobPortalAPI.Enums;
+using JobPortalAPI.Services.Resume;
 
 namespace JobPortalAPI.Controllers
 {
@@ -9,11 +10,11 @@ namespace JobPortalAPI.Controllers
     [Route("api/[controller]")]
     public class ResumeController : ControllerBase
     {
-        private readonly IWebHostEnvironment _env;
+        private readonly IResumeService _resumeService;
 
-        public ResumeController(IWebHostEnvironment env)
+        public ResumeController(IResumeService resumeService)
         {
-            _env = env;
+            _resumeService = resumeService;
         }
 
         private int GetUserId() =>
@@ -23,42 +24,29 @@ namespace JobPortalAPI.Controllers
         [Authorize(Roles = nameof(Role.User))]
         public async Task<IActionResult> UploadResume(IFormFile file)
         {
-            if (file == null || file.Length == 0)
-                return BadRequest("File is empty.");
-
-            var userId = GetUserId();
-            var fileName = $"resume_{userId}{Path.GetExtension(file.FileName)}";
-            var savePath = Path.Combine(_env.WebRootPath, "resumes", fileName);
-
-            var dirPath = Path.GetDirectoryName(savePath);
-            if (!Directory.Exists(dirPath))
-                Directory.CreateDirectory(dirPath!);
-
-            using (var stream = new FileStream(savePath, FileMode.Create))
+            try
             {
-                await file.CopyToAsync(stream);
+                var userId = GetUserId();
+                var path = await _resumeService.UploadResumeAsync(file, userId);
+                return Ok(new { path });
             }
-
-            return Ok(new { path = $"/resumes/{fileName}" });
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet]
         [Authorize(Roles = nameof(Role.User))]
-        public IActionResult GetMyResume()
+        public async Task<IActionResult> GetMyResume()
         {
             var userId = GetUserId();
-            var resumeFolder = Path.Combine(_env.WebRootPath, "resumes");
-            var filePath = Directory.GetFiles(resumeFolder, $"resume_{userId}.*").FirstOrDefault();
+            var resume = await _resumeService.GetResumeAsync(userId);
 
-            if (filePath == null)
+            if (resume == null)
                 return NotFound("Resume not found.");
 
-            var mime = "application/octet-stream";
-            var ext = Path.GetExtension(filePath).ToLower();
-            if (ext == ".pdf") mime = "application/pdf";
-            else if (ext == ".docx") mime = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-
-            return PhysicalFile(filePath, mime);
+            return File(resume.Value.fileContent, resume.Value.contentType, resume.Value.fileName);
         }
     }
 }
