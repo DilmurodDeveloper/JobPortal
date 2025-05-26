@@ -4,9 +4,9 @@
     [Route("api/[controller]")]
     public class JobController : ControllerBase
     {
-        private readonly IJobService _jobService;
+        private readonly IJobPostService _jobService;
 
-        public JobController(IJobService jobService)
+        public JobController(IJobPostService jobService)
         {
             _jobService = jobService;
         }

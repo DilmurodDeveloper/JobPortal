@@ -1,4 +1,4 @@
-﻿namespace JobPortal.Api.Services.Auth
+﻿namespace JobPortal.Api.Services.Foundations.Auth
 {
     public interface IAuthService
     {

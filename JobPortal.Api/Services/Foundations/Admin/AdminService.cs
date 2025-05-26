@@ -1,4 +1,4 @@
-﻿namespace JobPortal.Api.Services.Admin
+﻿namespace JobPortal.Api.Services.Foundations.Admin
 {
     public class AdminService : IAdminService
     {

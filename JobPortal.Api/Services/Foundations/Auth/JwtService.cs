@@ -1,6 +1,6 @@
 ﻿using JobPortal.Api.Models.Foundations.Users;
 
-namespace JobPortal.Api.Services.Auth
+namespace JobPortal.Api.Services.Foundations.Auth
 {
     public class JwtService
     {

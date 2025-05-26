@@ -1,4 +1,4 @@
-﻿namespace JobPortal.Api.Services.Application
+﻿namespace JobPortal.Api.Services.Foundations.Application
 {
     public class ApplicationService : IApplicationService
     {

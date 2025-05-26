@@ -1,6 +1,4 @@
-﻿using JobPortal.Api.Models.Foundations.Users;
-
-namespace JobPortal.Api.Services.Auth
+﻿namespace JobPortal.Api.Services.Foundations.Auth
 {
     public class AuthService : IAuthService
     {
@@ -35,7 +33,7 @@ namespace JobPortal.Api.Services.Auth
             await _db.Users.AddAsync(user);
             await _db.SaveChangesAsync();
 
-            var profile = new JobPortal.Api.Models.UserProfile
+            var profile = new UserProfile
             {
                 UserId = user.Id,
                 FirstName = dto.FirstName,

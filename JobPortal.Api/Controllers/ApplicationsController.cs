@@ -1,4 +1,6 @@
-﻿namespace JobPortal.Api.Controllers
+﻿using JobPortal.Api.Services.Foundations.Application;
+
+namespace JobPortal.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

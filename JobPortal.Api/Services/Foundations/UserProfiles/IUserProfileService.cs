@@ -1,4 +1,4 @@
-﻿namespace JobPortal.Api.Services.UserProfile
+﻿namespace JobPortal.Api.Services.Foundations.UserProfiles
 {
     public interface IUserProfileService
     {

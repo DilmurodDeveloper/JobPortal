@@ -1,8 +1,6 @@
-﻿using JobPortal.Api.Models.Foundations.JobPosts;
-
-namespace JobPortal.Api.Services.Job
+﻿namespace JobPortal.Api.Services.Foundations.JobPosts
 {
-    public interface IJobService
+    public interface IJobPostService
     {
         Task<(List<JobPost> Jobs, int TotalCount)> GetAllJobsAsync(JobSearchDto searchDto);
         Task<JobPost?> GetJobByIdAsync(int id);

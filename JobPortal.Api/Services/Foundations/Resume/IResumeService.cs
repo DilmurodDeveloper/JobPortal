@@ -1,4 +1,4 @@
-﻿namespace JobPortal.Api.Services.Resume
+﻿namespace JobPortal.Api.Services.Foundations.Resume
 {
     public interface IResumeService
     {

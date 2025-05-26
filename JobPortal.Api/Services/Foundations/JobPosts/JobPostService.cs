@@ -1,12 +1,10 @@
-﻿using JobPortal.Api.Models.Foundations.JobPosts;
-
-namespace JobPortal.Api.Services.Job
+﻿namespace JobPortal.Api.Services.Foundations.JobPosts
 {
-    public class JobService : IJobService
+    public class JobPostService : IJobPostService
     {
         private readonly ApplicationDbContext _db;
 
-        public JobService(ApplicationDbContext db)
+        public JobPostService(ApplicationDbContext db)
         {
             _db = db;
         }
