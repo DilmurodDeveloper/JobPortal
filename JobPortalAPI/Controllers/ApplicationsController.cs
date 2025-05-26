@@ -1,11 +1,9 @@
-﻿using JobPortalAPI.Data;
-using JobPortalAPI.Enums;
-using JobPortalAPI.Models;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
 using JobPortalAPI.DTOs.Application;
-using Microsoft.EntityFrameworkCore;
+using JobPortalAPI.Enums;
+using JobPortalAPI.Services.Application;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace JobPortalAPI.Controllers
 {
@@ -13,11 +11,11 @@ namespace JobPortalAPI.Controllers
     [Route("api/[controller]")]
     public class ApplicationsController : ControllerBase
     {
-        private readonly ApplicationDbContext _db;
+        private readonly IApplicationService _applicationService;
 
-        public ApplicationsController(ApplicationDbContext db)
+        public ApplicationsController(IApplicationService applicationService)
         {
-            _db = db;
+            _applicationService = applicationService;
         }
 
         private int GetUserId() =>
@@ -27,18 +25,8 @@ namespace JobPortalAPI.Controllers
         [Authorize(Roles = nameof(Role.User))]
         public async Task<IActionResult> Apply(ApplicationCreateDto dto)
         {
-            var application = new Application
-            {
-                UserId = GetUserId(),
-                JobPostId = dto.JobPostId,
-                ResumePath = dto.ResumePath,
-                Status = ApplicationStatus.Pending,
-                AppliedAt = DateTime.UtcNow
-            };
-
-            await _db.Applications.AddAsync(application);
-            await _db.SaveChangesAsync();
-
+            var userId = GetUserId();
+            var application = await _applicationService.ApplyAsync(dto, userId);
             return Ok(application);
         }
 
@@ -46,13 +34,8 @@ namespace JobPortalAPI.Controllers
         [Authorize(Roles = nameof(Role.User))]
         public async Task<IActionResult> GetMyApplications()
         {
-            int userId = GetUserId();
-
-            var apps = await _db.Applications
-                .Include(a => a.JobPost)
-                .Where(a => a.UserId == userId)
-                .ToListAsync();
-
+            var userId = GetUserId();
+            var apps = await _applicationService.GetMyApplicationsAsync(userId);
             return Ok(apps);
         }
 
@@ -61,13 +44,7 @@ namespace JobPortalAPI.Controllers
         public async Task<IActionResult> GetReceivedApplications()
         {
             var employerId = GetUserId();
-
-            var apps = await _db.Applications
-                .Include(a => a.JobPost)
-                .Include(a => a.User)
-                .Where(a => a.JobPost.UserId == employerId)
-                .ToListAsync();
-
+            var apps = await _applicationService.GetReceivedApplicationsAsync(employerId);
             return Ok(apps);
         }
 
@@ -75,20 +52,21 @@ namespace JobPortalAPI.Controllers
         [Authorize(Roles = nameof(Role.Employer))]
         public async Task<IActionResult> UpdateStatus(int id, ApplicationStatusUpdateDto dto)
         {
-            var app = await _db.Applications
-                .Include(a => a.JobPost)
-                .FirstOrDefaultAsync(a => a.Id == id);
+            var employerId = GetUserId();
 
-            if (app == null)
-                return NotFound();
-
-            if (app.JobPost.UserId != GetUserId())
+            try
+            {
+                await _applicationService.UpdateApplicationStatusAsync(id, dto.Status, employerId);
+                return NoContent();
+            }
+            catch (UnauthorizedAccessException)
+            {
                 return Forbid();
-
-            app.Status = dto.Status;
-            await _db.SaveChangesAsync();
-
-            return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
         }
     }
 }
