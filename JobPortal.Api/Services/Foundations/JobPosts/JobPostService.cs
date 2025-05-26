@@ -68,12 +68,43 @@
             if (existingJob == null)
                 return false;
 
-            existingJob.Title = dto.Title;
-            existingJob.Description = dto.Description;
-            existingJob.Company = dto.Company;
-            existingJob.Location = dto.Location;
-            existingJob.Salary = dto.Salary;
-            existingJob.JobType = dto.JobType;
+            existingJob.Title = dto.Title!;
+            existingJob.Description = dto.Description!;
+            existingJob.Company = dto.Company!;
+            existingJob.Location = dto.Location!;
+            existingJob.Salary = dto.Salary ?? 0m;
+            existingJob.JobType = dto.JobType ?? JobType.FullTime;
+            existingJob.UpdatedAt = DateTime.UtcNow;
+
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> PatchJobAsync(int id, JobUpdateDto dto)
+        {
+            var existingJob = await _db.JobPosts.FindAsync(id);
+            if (existingJob == null)
+                return false;
+
+            if (dto.Title != null)
+                existingJob.Title = dto.Title;
+
+            if (dto.Description != null)
+                existingJob.Description = dto.Description;
+
+            if (dto.Company != null)
+                existingJob.Company = dto.Company;
+
+            if (dto.Location != null)
+                existingJob.Location = dto.Location;
+
+            if (dto.Salary != default)
+                existingJob.Salary = dto.Salary.GetValueOrDefault();
+
+
+            if (dto.JobType != default)
+                existingJob.JobType = dto.JobType ?? JobType.FullTime;
+
             existingJob.UpdatedAt = DateTime.UtcNow;
 
             await _db.SaveChangesAsync();
@@ -90,5 +121,54 @@
             await _db.SaveChangesAsync();
             return true;
         }
+
+        public async Task<bool> ApplyToJobAsync(int jobId, int seekerId)
+        {
+            var job = await _db.JobPosts.FindAsync(jobId);
+            if (job == null) return false;
+
+            var alreadyApplied = await _db.Applications
+                .AnyAsync(a => a.JobPostId == jobId && a.UserId == seekerId);
+
+            if (alreadyApplied) return false;
+
+            var application = new ApplicationModel
+            {
+                JobPostId = jobId,
+                UserId = seekerId,
+                Status = ApplicationStatus.Pending,
+                AppliedAt = DateTime.UtcNow
+            };
+
+            await _db.Applications.AddAsync(application);
+            await _db.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<List<ApplicationDto>?> GetApplicantsAsync(int jobId, int employerId)
+        {
+            var job = await _db.JobPosts.Include(j => j.User).FirstOrDefaultAsync(j => j.Id == jobId);
+            if (job == null || job.UserId != employerId)
+                return null;
+
+            var applications = await _db.Applications
+                .Where(a => a.JobPostId == jobId)
+                .Include(a => a.User)
+                .Select(a => new ApplicationDto
+                {
+                    Id = a.Id,
+                    JobId = a.JobPostId,
+                    SeekerId = a.UserId,
+                    Status = a.Status.ToString(),
+                    CreatedAt = a.AppliedAt,
+                    JobTitle = job.Title,
+                    SeekerName = a.User.FirstName + " " + a.User.LastName
+                })
+                .ToListAsync();
+
+            return applications;
+        }
+
     }
 }

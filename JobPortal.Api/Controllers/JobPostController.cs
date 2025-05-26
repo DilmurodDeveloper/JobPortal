@@ -35,6 +35,19 @@
             return Ok(job);
         }
 
+        [HttpGet("{id}/applicants")]
+        [Authorize(Roles = nameof(Role.Employer) + "," + nameof(Role.Admin))]
+        public async Task<IActionResult> GetApplicants(int id)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var applicants = await _jobPostService.GetApplicantsAsync(id, userId);
+
+            if (applicants == null) return NotFound(new { message = "Job not found or access denied." });
+
+            return Ok(applicants);
+        }
+
+
         [HttpPost]
         [Authorize(Roles = nameof(Role.Employer) + "," + nameof(Role.Admin))]
         public async Task<IActionResult> Create(JobCreateDto dto)
@@ -44,11 +57,31 @@
             return CreatedAtAction(nameof(GetById), new { id = job.Id }, job);
         }
 
+        [HttpPost("{id}/apply")]
+        [Authorize(Roles = nameof(Role.User))]
+        public async Task<IActionResult> ApplyToJob(int id)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var result = await _jobPostService.ApplyToJobAsync(id, userId);
+            if (!result) return BadRequest(new { message = "You may have already applied or job not found." });
+
+            return Ok(new { message = "Application submitted successfully" });
+        }
+
         [HttpPut("{id}")]
         [Authorize(Roles = nameof(Role.Employer) + "," + nameof(Role.Admin))]
         public async Task<IActionResult> Update(int id, JobUpdateDto dto)
         {
             var result = await _jobPostService.UpdateJobAsync(id, dto);
+            if (!result) return NotFound();
+            return NoContent();
+        }
+
+        [HttpPatch("{id}")]
+        [Authorize(Roles = nameof(Role.Employer) + "," + nameof(Role.Admin))]
+        public async Task<IActionResult> Patch(int id, JobUpdateDto dto)
+        {
+            var result = await _jobPostService.PatchJobAsync(id, dto);
             if (!result) return NotFound();
             return NoContent();
         }
