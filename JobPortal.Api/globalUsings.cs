@@ -18,6 +18,7 @@ global using System.IdentityModel.Tokens.Jwt;
 global using Microsoft.AspNetCore.Authorization;
 global using JobPortal.Api.Models.Foundations.Users;
 global using JobPortal.Api.Services.Foundations.Auth;
+global using JobPortal.Api.Services.Foundations.Users;
 global using JobPortal.Api.Services.Foundations.Admin;
 global using JobPortal.Api.Models.Foundations.JobPosts;
 global using JobPortal.Api.Services.Foundations.Resume;

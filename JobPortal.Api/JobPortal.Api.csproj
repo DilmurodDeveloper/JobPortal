@@ -19,6 +19,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Services\Foundations\Application\Exceptions\" />
+    <Folder Include="Services\Foundations\JobPosts\Exceptions\" />
+    <Folder Include="Services\Foundations\UserProfiles\Exceptions\" />
+    <Folder Include="Services\Foundations\Users\Exceptions\" />
     <Folder Include="wwwroot\resumes\" />
   </ItemGroup>
 
