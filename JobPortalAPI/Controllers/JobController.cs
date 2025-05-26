@@ -1,11 +1,9 @@
 ﻿using System.Security.Claims;
-using JobPortalAPI.Data;
 using JobPortalAPI.DTOs.Job;
 using JobPortalAPI.Enums;
-using JobPortalAPI.Models;
+using JobPortalAPI.Services.Job;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace JobPortalAPI.Controllers
 {
@@ -13,38 +11,18 @@ namespace JobPortalAPI.Controllers
     [Route("api/[controller]")]
     public class JobController : ControllerBase
     {
-        private readonly ApplicationDbContext _db;
+        private readonly IJobService _jobService;
 
-        public JobController(ApplicationDbContext db)
+        public JobController(IJobService jobService)
         {
-            _db = db;
+            _jobService = jobService;
         }
 
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> GetAll([FromQuery] JobSearchDto searchDto)
         {
-            if (searchDto.Page <= 0) searchDto.Page = 1;
-            if (searchDto.PageSize <= 0 || searchDto.PageSize > 50) searchDto.PageSize = 10;
-
-            var query = _db.JobPosts.AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(searchDto.Title))
-                query = query.Where(j => j.Title.Contains(searchDto.Title));
-
-            if (!string.IsNullOrWhiteSpace(searchDto.Location))
-                query = query.Where(j => j.Location.Contains(searchDto.Location));
-
-            if (searchDto.JobType.HasValue)
-                query = query.Where(j => j.JobType == searchDto.JobType.Value);
-
-            var totalCount = await query.CountAsync();
-
-            var jobs = await query
-                .OrderByDescending(j => j.CreatedAt)
-                .Skip((searchDto.Page - 1) * searchDto.PageSize)
-                .Take(searchDto.PageSize)
-                .ToListAsync();
+            var (jobs, totalCount) = await _jobService.GetAllJobsAsync(searchDto);
 
             return Ok(new
             {
@@ -59,7 +37,7 @@ namespace JobPortalAPI.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetById(int id)
         {
-            var job = await _db.JobPosts.FindAsync(id);
+            var job = await _jobService.GetJobByIdAsync(id);
             if (job == null) return NotFound();
             return Ok(job);
         }
@@ -69,40 +47,16 @@ namespace JobPortalAPI.Controllers
         public async Task<IActionResult> Create(JobCreateDto dto)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-
-            var jobPost = new JobPost
-            {
-                Title = dto.Title,
-                Description = dto.Description,
-                Company = dto.Company,
-                Location = dto.Location,
-                Salary = dto.Salary,
-                JobType = dto.JobType,
-                UserId = userId
-            };
-
-            await _db.JobPosts.AddAsync(jobPost);
-            await _db.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetById), new { id = jobPost.Id }, jobPost);
+            var job = await _jobService.CreateJobAsync(dto, userId);
+            return CreatedAtAction(nameof(GetById), new { id = job.Id }, job);
         }
 
         [HttpPut("{id}")]
         [Authorize(Roles = nameof(Role.Employer) + "," + nameof(Role.Admin))]
-        public async Task<IActionResult> Update(int id, JobUpdateDto jobDto)
+        public async Task<IActionResult> Update(int id, JobUpdateDto dto)
         {
-            var existingJob = await _db.JobPosts.FindAsync(id);
-            if (existingJob == null) return NotFound();
-
-            existingJob.Title = jobDto.Title;
-            existingJob.Description = jobDto.Description;
-            existingJob.Company = jobDto.Company;
-            existingJob.Location = jobDto.Location;
-            existingJob.Salary = jobDto.Salary;
-            existingJob.JobType = jobDto.JobType;
-            existingJob.UpdatedAt = DateTime.UtcNow;
-
-            await _db.SaveChangesAsync();
+            var result = await _jobService.UpdateJobAsync(id, dto);
+            if (!result) return NotFound();
             return NoContent();
         }
 
@@ -110,11 +64,8 @@ namespace JobPortalAPI.Controllers
         [Authorize(Roles = nameof(Role.Admin))]
         public async Task<IActionResult> Delete(int id)
         {
-            var job = await _db.JobPosts.FindAsync(id);
-            if (job == null) return NotFound();
-
-            _db.JobPosts.Remove(job);
-            await _db.SaveChangesAsync();
+            var result = await _jobService.DeleteJobAsync(id);
+            if (!result) return NotFound();
             return NoContent();
         }
     }
