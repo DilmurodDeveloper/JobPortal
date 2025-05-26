@@ -13,6 +13,7 @@ global using JobPortal.Api.DTOs.Resume;
 global using System.Security.Cryptography;
 global using Microsoft.AspNetCore.Identity;
 global using Microsoft.EntityFrameworkCore;
+global using Microsoft.AspNetCore.JsonPatch;
 global using JobPortal.Api.DTOs.Application;
 global using Microsoft.IdentityModel.Tokens;
 global using System.IdentityModel.Tokens.Jwt;

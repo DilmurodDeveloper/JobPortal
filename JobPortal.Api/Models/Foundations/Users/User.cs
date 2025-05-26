@@ -11,7 +11,7 @@
         public UserStatus Status { get; set; } = UserStatus.Active;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-
+        public string? AvatarUrl { get; set; }
         public UserProfile? Profile { get; set; }
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiryTime { get; set; }

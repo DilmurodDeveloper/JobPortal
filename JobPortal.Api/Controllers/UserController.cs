@@ -1,6 +1,4 @@
-﻿using JobPortal.Api.Services.Foundations.Users;
-
-namespace JobPortal.Api.Controllers
+﻿namespace JobPortal.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -36,6 +34,40 @@ namespace JobPortal.Api.Controllers
             int userId = GetCurrentUserId();
             await _userService.DeleteMyAccountAsync(userId);
             return NoContent();
+        }
+
+        [HttpPatch]
+        public async Task<IActionResult> PatchUser([FromBody] JsonPatchDocument<User> patchDoc)
+        {
+            if (patchDoc == null)
+                return BadRequest();
+
+            int userId = GetCurrentUserId();
+
+            var result = await _userService.PatchUserAsync(userId, patchDoc);
+            if (!result)
+                return NotFound();
+
+            return NoContent();
+        }
+
+        [HttpPost("avatar")]
+        public async Task<IActionResult> UploadAvatar(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("File is empty.");
+
+            int userId = GetCurrentUserId();
+
+            try
+            {
+                var avatarUrl = await _userService.UploadAvatarAsync(file, userId);
+                return Ok(new { AvatarUrl = avatarUrl });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         private int GetCurrentUserId()
