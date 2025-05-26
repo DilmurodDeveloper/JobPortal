@@ -10,6 +10,7 @@ namespace JobPortalAPI.Models
         public string? Email { get; set; }
         public string? PasswordHash { get; set; } 
         public Role Role { get; set; } = Role.User;
+        public UserStatus Status { get; set; } = UserStatus.Active;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
