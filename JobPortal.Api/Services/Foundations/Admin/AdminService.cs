@@ -122,5 +122,73 @@
 
             await _context.SaveChangesAsync();
         }
+
+        public async Task<UserDetailsDto> GetUserByIdAsync(int id)
+        {
+            var user = await _context.Users
+                .Include(u => u.Profile)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user == null)
+                throw new KeyNotFoundException("User not found");
+
+            return new UserDetailsDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Role = user.Role.ToString(),
+                Status = user.Status.ToString(),
+                CreatedAt = user.CreatedAt,
+                UpdatedAt = user.UpdatedAt,
+
+                Profile = user.Profile == null ? null : new UserProfileDto
+                {
+                    FirstName = user.Profile.FirstName,
+                    LastName = user.Profile.LastName,
+                    PhoneNumber = user.Profile.PhoneNumber,
+                    Address = user.Profile.Address,
+                    Bio = user.Profile.Bio,
+                    ProfilePictureUrl = user.Profile.ProfilePictureUrl,
+                    Location = user.Profile.Location
+                }
+            };
+        }
+
+        public async Task<PagedResult<ApplicationDto>> GetApplicationsAsync(int page, int pageSize)
+        {
+            var query = _context.Applications
+                .Include(a => a.JobPost)
+                .Include(a => a.User);
+
+            var totalApplications = await query.CountAsync();
+
+            var applications = await query
+                .OrderBy(a => a.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(a => new ApplicationDto
+                {
+                    Id = a.Id,
+                    JobId = a.JobPostId,
+                    SeekerId = a.UserId,
+                    Status = a.Status.ToString(),
+                    CreatedAt = a.AppliedAt,
+                    JobTitle = a.JobPost.Title,
+                    SeekerName = a.User.FirstName + " " + a.User.LastName,
+                    SeekerPhoneNumber = a.User.Profile != null ? a.User.Profile.PhoneNumber : null
+                })
+                .ToListAsync();
+
+            return new PagedResult<ApplicationDto>
+            {
+                Total = totalApplications,
+                Page = page,
+                PageSize = pageSize,
+                Items = applications
+            };
+        }
+
     }
 }

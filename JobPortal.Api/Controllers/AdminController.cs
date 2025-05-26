@@ -40,6 +40,20 @@ namespace JobPortal.Api.Controllers
             return Ok(result);
         }
 
+        [HttpGet("users/{id}")]
+        public async Task<IActionResult> GetUserById(int id)
+        {
+            try
+            {
+                var user = await _adminService.GetUserByIdAsync(id);
+                return Ok(user);
+            }
+            catch (KeyNotFoundException e)
+            {
+                return NotFound(new { message = e.Message });
+            }
+        }
+
         [HttpPut("users/{id}")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserDto dto)
         {
@@ -51,6 +65,24 @@ namespace JobPortal.Api.Controllers
             catch (KeyNotFoundException e)
             {
                 return NotFound(new { message = e.Message });
+            }
+        }
+
+        [HttpPut("users/{id}/role")]
+        public async Task<IActionResult> UpdateUserRole(int id, [FromBody] UpdateUserRoleDto dto)
+        {
+            try
+            {
+                await _adminService.UpdateUserRoleAsync(id, dto);
+                return Ok(new { message = "User role updated successfully" });
+            }
+            catch (KeyNotFoundException e)
+            {
+                return NotFound(new { message = e.Message });
+            }
+            catch (ArgumentException e)
+            {
+                return BadRequest(new { message = e.Message });
             }
         }
 
@@ -75,22 +107,11 @@ namespace JobPortal.Api.Controllers
             return Ok(stats);
         }
 
-        [HttpPut("users/{id}/role")]
-        public async Task<IActionResult> UpdateUserRole(int id, [FromBody] UpdateUserRoleDto dto)
+        [HttpGet("applications")]
+        public async Task<IActionResult> GetApplications([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            try
-            {
-                await _adminService.UpdateUserRoleAsync(id, dto);
-                return Ok(new { message = "User role updated successfully" });
-            }
-            catch (KeyNotFoundException e)
-            {
-                return NotFound(new { message = e.Message });
-            }
-            catch (ArgumentException e)
-            {
-                return BadRequest(new { message = e.Message });
-            }
+            var applications = await _adminService.GetApplicationsAsync(page, pageSize);
+            return Ok(applications);
         }
     }
 }
