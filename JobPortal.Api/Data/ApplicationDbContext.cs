@@ -6,6 +6,7 @@
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<JobPost> JobPosts { get; set; } = null!;
         public DbSet<Application> Applications { get; set; }
+        public DbSet<Resume> Resumes { get; set; }
 
         public ApplicationDbContext(DbContextOptions options)
             : base(options) { }
