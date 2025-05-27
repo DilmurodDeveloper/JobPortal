@@ -2,6 +2,7 @@
 {
     public interface IUserService
     {
+        ValueTask<User> AddUserAsync(User user);
         Task<UserSelfViewDto> GetMyUserAsync(int userId);
         Task UpdateMyUserAsync(int userId, UserSelfUpdateDto updateDto);
         Task DeleteMyAccountAsync(int userId);
