@@ -1,8 +1,9 @@
 ﻿namespace JobPortal.Api.Models.Foundations.UserProfiles.Exceptions
 {
-    public class AlreadyExistsUserProfileException : Exception
+    public class AlreadyExistsUserProfileException : Xeption
     {
-        public AlreadyExistsUserProfileException()
-            : base("User profile already exists.") { }
+        public AlreadyExistsUserProfileException(Exception innerException)
+            : base("User profile already exists.", innerException) 
+        { }
     }
 }

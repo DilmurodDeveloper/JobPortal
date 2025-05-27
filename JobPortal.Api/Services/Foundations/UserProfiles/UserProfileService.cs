@@ -1,57 +1,95 @@
 ﻿namespace JobPortal.Api.Services.Foundations.UserProfiles
 {
-    public class UserProfileService : IUserProfileService
+    public partial class UserProfileService : IUserProfileService
     {
-        private readonly ApplicationDbContext _db;
+        private readonly IStorageBroker storageBroker;
+        private readonly ILoggingBroker loggingBroker;
 
-        public UserProfileService(ApplicationDbContext db)
+        public UserProfileService(
+            IStorageBroker storageBroker,
+            ILoggingBroker loggingBroker)
         {
-            _db = db;
+            this.storageBroker = storageBroker;
+            this.loggingBroker = loggingBroker;
         }
 
-        public async Task<UserProfileDto?> GetProfileAsync(int userId)
-        {
-            var profile = await _db.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
-            if (profile == null) return null;
-
-            return new UserProfileDto
+        public async Task<UserProfileDto?> GetProfileAsync(int userId) =>
+            await TryCatch(async () =>
             {
-                FirstName = profile.FirstName,
-                LastName = profile.LastName,
-                PhoneNumber = profile.PhoneNumber,
-                Address = profile.Address,
-                Bio = profile.Bio,
-                ProfilePictureUrl = profile.ProfilePictureUrl,
-                Location = profile.Location
-            };
-        }
+                var profile = await storageBroker.SelectUserProfileByUserIdAsync(userId);
 
-        public async Task<bool> UpdateProfileAsync(int userId, UserProfileDto dto)
+                if (profile == null)
+                {
+                    return null;
+                }
+
+                return new UserProfileDto
+                {
+                    FirstName = profile.FirstName,
+                    LastName = profile.LastName,
+                    PhoneNumber = profile.PhoneNumber,
+                    Address = profile.Address,
+                    Bio = profile.Bio,
+                    ProfilePictureUrl = profile.ProfilePictureUrl,
+                    Location = profile.Location
+                };
+            });
+
+        public async Task<bool> UpdateProfileAsync(int userId, UserProfileDto dto) =>
+            await TryCatch(async () =>
+            {
+                UserProfile? profile = await storageBroker.SelectUserProfileByUserIdAsync(userId);
+
+                if (profile == null)
+                {
+                    return false;
+                }
+
+                profile.FirstName = dto.FirstName;
+                profile.LastName = dto.LastName;
+                profile.PhoneNumber = dto.PhoneNumber;
+                profile.Address = dto.Address;
+                profile.Bio = dto.Bio;
+                profile.ProfilePictureUrl = dto.ProfilePictureUrl;
+                profile.Location = dto.Location;
+                profile.UpdatedAt = DateTime.UtcNow;
+
+                await storageBroker.UpdateUserProfileAsync(profile);
+
+                return true;
+            });
+
+        public async Task<bool> DeleteProfileAsync(int userId) =>
+            await TryCatch(async () =>
+            {
+                UserProfile? profile = await storageBroker.SelectUserProfileByUserIdAsync(userId);
+
+                if (profile == null)
+                {
+                    return false;
+                }
+
+                await storageBroker.DeleteUserProfileAsync(profile);
+
+                return true;
+            });
+
+
+        private async Task<T> TryCatch<T>(Func<Task<T>> returningFunction)
         {
-            var profile = await _db.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
-            if (profile == null) return false;
+            try
+            {
+                return await returningFunction();
+            }
+            catch (Exception exception)
+            {
+                var failedUserProfileServiceException =
+                    new FailedUserProfileServiceException(exception);
 
-            profile.FirstName = dto.FirstName;
-            profile.LastName = dto.LastName;
-            profile.PhoneNumber = dto.PhoneNumber;
-            profile.Address = dto.Address;
-            profile.Bio = dto.Bio;
-            profile.ProfilePictureUrl = dto.ProfilePictureUrl;
-            profile.Location = dto.Location;
-            profile.UpdatedAt = DateTime.UtcNow;
+                loggingBroker.LogError(failedUserProfileServiceException);
 
-            await _db.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<bool> DeleteProfileAsync(int userId)
-        {
-            var profile = await _db.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
-            if (profile == null) return false;
-
-            _db.UserProfiles.Remove(profile);
-            await _db.SaveChangesAsync();
-            return true;
+                throw failedUserProfileServiceException;
+            }
         }
     }
 }

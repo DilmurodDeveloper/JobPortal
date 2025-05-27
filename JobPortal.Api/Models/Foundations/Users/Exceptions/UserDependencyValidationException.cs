@@ -1,8 +1,10 @@
 ﻿namespace JobPortal.Api.Models.Foundations.Users.Exceptions
 {
-    public class UserDependencyValidationException : Exception
+    public class UserDependencyValidationException : Xeption
     {
-        public UserDependencyValidationException(Exception innerException)
-            : base("User dependency validation error occurred.", innerException) { }
+        public UserDependencyValidationException(Xeption innerException)
+            : base(message: "User dependency validation error occurred.", 
+                  innerException) 
+        { }
     }
 }

@@ -1,8 +1,10 @@
 ﻿namespace JobPortal.Api.Models.Foundations.JobPosts.Exceptions
 {
-    public class JobPostDependencyValidationException : Exception
+    public class JobPostDependencyValidationException : Xeption
     {
-        public JobPostDependencyValidationException(Exception innerException)
-            : base("Job post dependency validation error occurred.", innerException) { }
+        public JobPostDependencyValidationException(Xeption innerException)
+            : base(message: "Job post dependency validation error occurred.", 
+                  innerException) 
+        { }
     }
 }

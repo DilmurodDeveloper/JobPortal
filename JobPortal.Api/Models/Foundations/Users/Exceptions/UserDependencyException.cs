@@ -1,8 +1,10 @@
 ﻿namespace JobPortal.Api.Models.Foundations.Users.Exceptions
 {
-    public class UserDependencyException : Exception
+    public class UserDependencyException : Xeption
     {
-        public UserDependencyException(Exception innerException)
-            : base("User dependency error occurred, contact support.", innerException) { }
+        public UserDependencyException(Xeption innerException)
+            : base(message: "User dependency error occurred, contact support.", 
+                  innerException) 
+        { }
     }
 }

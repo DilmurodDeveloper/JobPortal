@@ -1,8 +1,9 @@
 ﻿namespace JobPortal.Api.Models.Foundations.UserProfiles.Exceptions
 {
-    public class NullUserProfileException : Exception
+    public class NullUserProfileException : Xeption
     {
         public NullUserProfileException()
-            : base("User profile is null.") { }
+            : base(message: "User profile is null.") 
+        { }
     }
 }

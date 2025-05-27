@@ -1,8 +1,8 @@
 ﻿namespace JobPortal.Api.Models.Foundations.Users.Exceptions
 {
-    public class InvalidUserException : Exception
+    public class InvalidUserException : Xeption
     {
-        public InvalidUserException(string message)
-            : base(message) { }
+        public InvalidUserException()
+            : base(message: "User is invalid") { }
     }
 }

@@ -1,8 +1,9 @@
 ﻿namespace JobPortal.Api.Models.Foundations.Applications.Exceptions
 {
-    public class InvalidApplicationException : Exception
+    public class InvalidApplicationException : Xeption
     {
-        public InvalidApplicationException(string message)
-            : base(message) { }
+        public InvalidApplicationException()
+            : base(message: "Application is invalid") 
+        { }
     }
 }

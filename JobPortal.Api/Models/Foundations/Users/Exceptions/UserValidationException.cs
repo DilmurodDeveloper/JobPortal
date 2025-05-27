@@ -1,8 +1,10 @@
 ﻿namespace JobPortal.Api.Models.Foundations.Users.Exceptions
 {
-    public class UserValidationException : Exception
+    public class UserValidationException : Xeption
     {
-        public UserValidationException(Exception innerException)
-            : base("User validation error occurred, fix the errors and try again.", innerException) { }
+        public UserValidationException(Xeption innerException)
+            : base(message: "User validation error occurred, fix the errors and try again.", 
+                  innerException: innerException) 
+        { }
     }
 }

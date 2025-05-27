@@ -1,8 +1,9 @@
 ﻿namespace JobPortal.Api.Models.Foundations.Users.Exceptions
 {
-    public class AlreadyExistsUserException : Exception
+    public class AlreadyExistsUserException : Xeption
     {
-        public AlreadyExistsUserException()
-            : base("User already exists.") { }
+        public AlreadyExistsUserException(Exception innerException)
+            : base("User already exists.", innerException) 
+        { }
     }
 }

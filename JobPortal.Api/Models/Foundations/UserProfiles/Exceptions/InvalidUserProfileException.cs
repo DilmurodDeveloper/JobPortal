@@ -1,8 +1,9 @@
 ﻿namespace JobPortal.Api.Models.Foundations.UserProfiles.Exceptions
 {
-    public class InvalidUserProfileException : Exception
+    public class InvalidUserProfileException : Xeption
     {
-        public InvalidUserProfileException(string message)
-            : base(message) { }
+        public InvalidUserProfileException()
+            : base(message: "User Profile is invalid") 
+        { }
     }
 }
