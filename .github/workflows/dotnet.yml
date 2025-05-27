@@ -22,10 +22,10 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore JobPortal.Api/JobPortal.Api.csproj
+        run: dotnet restore JobPortal.sln
 
       - name: Build the solution
-        run: dotnet build JobPortal.Api/JobPortal.Api.csproj --no-restore --configuration Release
+        run: dotnet build JobPortal.sln --no-restore --configuration Release
 
       - name: Run unit tests
         run: dotnet test JobPortal.Api.Tests.Unit/JobPortal.Api.Tests.Unit.csproj --no-build --verbosity normal
