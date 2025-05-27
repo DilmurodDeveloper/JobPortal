@@ -1,6 +1,6 @@
 ﻿namespace JobPortal.Api.DTOs.Admins
 {
-    public class UpdateUserDto
+    public class AdminUpdateUserDto
     {
         public string? FirstName { get; set; }
         public string? LastName { get; set; }

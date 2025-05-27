@@ -16,15 +16,18 @@
         public async Task<IActionResult> GetMyInfo()
         {
             int userId = GetCurrentUserId();
-            var user = await _userService.GetMyUserAsync(userId);
-            return Ok(user);
+            var userDto = await _userService.GetMyUserAsync(userId);
+            return Ok(userDto);
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateMyInfo([FromBody] User userDto)
+        public async Task<IActionResult> UpdateMyInfo([FromBody] UserSelfUpdateDto updateDto)
         {
+            if (updateDto == null)
+                return BadRequest("Invalid data");
+
             int userId = GetCurrentUserId();
-            await _userService.UpdateMyUserAsync(userId, userDto);
+            await _userService.UpdateMyUserAsync(userId, updateDto);
             return NoContent();
         }
 
@@ -37,10 +40,10 @@
         }
 
         [HttpPatch]
-        public async Task<IActionResult> PatchUser([FromBody] JsonPatchDocument<User> patchDoc)
+        public async Task<IActionResult> PatchUser([FromBody] JsonPatchDocument<UserSelfPatchDto> patchDoc)
         {
             if (patchDoc == null)
-                return BadRequest();
+                return BadRequest("Patch data is required.");
 
             int userId = GetCurrentUserId();
 
@@ -52,16 +55,17 @@
         }
 
         [HttpPost("avatar")]
-        public async Task<IActionResult> UploadAvatar(IFormFile file)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadAvatar([FromForm] UploadAvatarDto dto)
         {
-            if (file == null || file.Length == 0)
+            if (dto.File == null || dto.File.Length == 0)
                 return BadRequest("File is empty.");
 
             int userId = GetCurrentUserId();
 
             try
             {
-                var avatarUrl = await _userService.UploadAvatarAsync(file, userId);
+                var avatarUrl = await _userService.UploadAvatarAsync(dto.File, userId);
                 return Ok(new { AvatarUrl = avatarUrl });
             }
             catch (ArgumentException ex)
@@ -72,7 +76,11 @@
 
         private int GetCurrentUserId()
         {
-            return int.Parse(User.Claims.First(c => c.Type == "id").Value);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+                throw new UnauthorizedAccessException("User ID not found in token.");
+
+            return int.Parse(userId);
         }
     }
 }

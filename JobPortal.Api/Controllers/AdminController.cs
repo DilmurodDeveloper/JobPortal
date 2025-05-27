@@ -1,6 +1,4 @@
-﻿using JobPortal.Api.Services.Foundations.Admin;
-
-namespace JobPortal.Api.Controllers
+﻿namespace JobPortal.Api.Controllers
 {
     [ApiController]
     [Route("api/admin")]
@@ -55,7 +53,7 @@ namespace JobPortal.Api.Controllers
         }
 
         [HttpPut("users/{id}")]
-        public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserDto dto)
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] AdminUpdateUserDto dto)
         {
             try
             {

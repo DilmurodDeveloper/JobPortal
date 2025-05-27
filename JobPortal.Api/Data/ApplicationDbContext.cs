@@ -8,7 +8,7 @@
         public DbSet<Application> Applications { get; set; }
         public DbSet<Resume> Resumes { get; set; }
 
-        public ApplicationDbContext(DbContextOptions options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -21,8 +21,8 @@
                 .HasForeignKey<UserProfile>(p => p.UserId);
 
             modelBuilder.Entity<JobPost>()
-                .HasOne<User>()              
-                .WithMany()  
+                .HasOne<User>()
+                .WithMany()
                 .HasForeignKey(j => j.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
