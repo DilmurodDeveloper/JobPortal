@@ -16,7 +16,7 @@
             this.webHostEnvironment = webHostEnvironment;
         }
 
-        public async Task<User> GetMyUserAsync(int userId)
+        public async Task<UserSelfViewDto> GetMyUserAsync(int userId)
         {
             var user = await this.storageBroker.SelectUserByIdAsync(userId);
 
@@ -27,10 +27,16 @@
                 throw exception;
             }
 
-            return user;
+            return new UserSelfViewDto
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                AvatarUrl = user.AvatarUrl
+            };
         }
 
-        public async Task UpdateMyUserAsync(int userId, User updatedUser)
+        public async Task UpdateMyUserAsync(int userId, UserSelfUpdateDto updateDto)
         {
             var user = await this.storageBroker.SelectUserByIdAsync(userId);
 
@@ -41,9 +47,9 @@
                 throw exception;
             }
 
-            user.FirstName = updatedUser.FirstName ?? user.FirstName;
-            user.LastName = updatedUser.LastName ?? user.LastName;
-            user.Email = updatedUser.Email ?? user.Email;
+            user.FirstName = updateDto.FirstName ?? user.FirstName;
+            user.LastName = updateDto.LastName ?? user.LastName;
+            user.AvatarUrl = updateDto.AvatarUrl ?? user.AvatarUrl;
             user.UpdatedAt = DateTime.UtcNow;
 
             await this.storageBroker.UpdateUserAsync(user);
@@ -66,18 +72,28 @@
             await this.storageBroker.UpdateUserAsync(user);
         }
 
-        public async Task<bool> PatchUserAsync(int userId, JsonPatchDocument<User> patchDoc)
+        public async Task<bool> PatchUserAsync(int userId, JsonPatchDocument<UserSelfPatchDto> patchDoc)
         {
             var user = await this.storageBroker.SelectUserByIdAsync(userId);
 
             if (user == null)
                 return false;
 
-            patchDoc.ApplyTo(user);
+            var dto = new UserSelfPatchDto
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                AvatarUrl = user.AvatarUrl
+            };
+
+            patchDoc.ApplyTo(dto);
+
+            user.FirstName = dto.FirstName;
+            user.LastName = dto.LastName;
+            user.AvatarUrl = dto.AvatarUrl;
             user.UpdatedAt = DateTime.UtcNow;
 
             await this.storageBroker.UpdateUserAsync(user);
-
             return true;
         }
 

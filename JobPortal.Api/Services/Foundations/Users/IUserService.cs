@@ -2,10 +2,10 @@
 {
     public interface IUserService
     {
-        Task<User> GetMyUserAsync(int userId);
-        Task UpdateMyUserAsync(int userId, User updatedUser);
+        Task<UserSelfViewDto> GetMyUserAsync(int userId);
+        Task UpdateMyUserAsync(int userId, UserSelfUpdateDto updateDto);
         Task DeleteMyAccountAsync(int userId);
-        Task<bool> PatchUserAsync(int userId, JsonPatchDocument<User> patchDoc);
+        Task<bool> PatchUserAsync(int userId, JsonPatchDocument<UserSelfPatchDto> patchDoc);
         Task<string> UploadAvatarAsync(IFormFile file, int userId);
     }
 }

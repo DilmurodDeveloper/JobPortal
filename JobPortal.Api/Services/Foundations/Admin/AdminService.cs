@@ -63,7 +63,7 @@
             };
         }
 
-        public async Task UpdateUserAsync(int id, UpdateUserDto dto)
+        public async Task UpdateUserAsync(int id, AdminUpdateUserDto dto)
         {
             var user = await _context.Users.FindAsync(id);
             if (user == null) throw new KeyNotFoundException("User not found");

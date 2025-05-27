@@ -24,6 +24,7 @@ global using System.IdentityModel.Tokens.Jwt;
 global using JobPortal.Api.DTOs.Applications;
 global using Microsoft.AspNetCore.Authorization;
 global using JobPortal.Api.Brokers.Logging_Broker;
+global using System.ComponentModel.DataAnnotations;
 global using JobPortal.Api.Models.Foundations.Users;
 global using JobPortal.Api.Services.Foundations.Auth;
 global using JobPortal.Api.Services.Foundations.Users;
