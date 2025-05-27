@@ -28,4 +28,4 @@ jobs:
         run: dotnet build JobPortal.sln --no-restore --configuration Release
 
       - name: Run unit tests
-        run: dotnet test JobPortal.Api.Tests.Unit/JobPortal.Api.Tests.Unit.csproj --no-build --verbosity normal
+        run: dotnet test JobPortal.Api.Tests.Unit/JobPortal.Api.Tests.Unit.csproj --no-build --configuration Release --verbosity normal
