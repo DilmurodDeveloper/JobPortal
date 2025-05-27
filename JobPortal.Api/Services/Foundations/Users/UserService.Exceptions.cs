@@ -2,14 +2,14 @@
 {
     public partial class UserService
     {
-        private delegate ValueTask<User> ReturningUserFunction();
         private delegate Task ReturningUsersFunction();
+        private delegate ValueTask<T> ReturningValueTaskFunction<T>();
 
-        private async ValueTask<User> TryCatch(ReturningUserFunction returningUserFunction)
+        private async ValueTask<T> TryCatch<T>(ReturningValueTaskFunction<T> returningFunction)
         {
             try
             {
-                return await returningUserFunction();
+                return await returningFunction();
             }
             catch (NullUserException nullUserException)
             {

@@ -16,7 +16,7 @@ namespace JobPortal.Api.Brokers.Storages
         public IQueryable<User> SelectAllUsers() =>
             SelectAll<User>();
 
-        public async ValueTask<User> SelectUserByIdAsync(int userId) =>
+        public async ValueTask<User?> SelectUserByIdAsync(int userId) =>
             await SelectAsync<User>(userId) ?? throw new InvalidOperationException("User not found.");
 
         public async ValueTask<User> UpdateUserAsync(User user) =>
