@@ -1,4 +1,4 @@
-﻿namespace JobPortal.Api.DTOs.Resume
+﻿namespace JobPortal.Api.DTOs.Resumes
 {
     public class ResumeDto
     {

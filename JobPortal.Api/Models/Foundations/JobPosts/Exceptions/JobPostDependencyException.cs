@@ -1,8 +1,10 @@
 ﻿namespace JobPortal.Api.Models.Foundations.JobPosts.Exceptions
 {
-    public class JobPostDependencyException : Exception
+    public class JobPostDependencyException : Xeption
     {
-        public JobPostDependencyException(Exception innerException)
-            : base("Job post dependency error occurred, contact support.", innerException) { }
+        public JobPostDependencyException(Xeption innerException)
+            : base(message: "Job post dependency error occurred, contact support.", 
+                  innerException) 
+        { }
     }
 }

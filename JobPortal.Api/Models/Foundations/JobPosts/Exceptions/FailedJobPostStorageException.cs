@@ -1,9 +1,10 @@
 ﻿namespace JobPortal.Api.Models.Foundations.JobPosts.Exceptions
 {
-    public class FailedJobPostStorageException : Exception
+    public class FailedJobPostStorageException : Xeption
     {
         public FailedJobPostStorageException(Exception innerException)
-            : base("Failed job post storage error occurred, contact support.", innerException)
+            : base(message: "Failed job post storage error occurred, contact support.", 
+                  innerException)
         { }
     }
 }

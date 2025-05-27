@@ -1,8 +1,9 @@
 ﻿namespace JobPortal.Api.Models.Foundations.Applications.Exceptions
 {
-    public class NullApplicationException : Exception
+    public class NullApplicationException : Xeption
     {
         public NullApplicationException()
-            : base("Application is null.") { }
+            : base(message: "Application is null.") 
+        { }
     }
 }

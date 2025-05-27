@@ -1,4 +1,4 @@
-﻿namespace JobPortal.Api.DTOs.Admin
+﻿namespace JobPortal.Api.DTOs.Admins
 {
     public class UpdateUserDto
     {

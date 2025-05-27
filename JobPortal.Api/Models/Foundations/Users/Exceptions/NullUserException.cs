@@ -1,8 +1,9 @@
 ﻿namespace JobPortal.Api.Models.Foundations.Users.Exceptions
 {
-    public class NullUserException : Exception
+    public class NullUserException : Xeption
     {
         public NullUserException()
-            : base("User is null.") { }
+            : base(message: "User is null.") 
+        { }
     }
 }

@@ -7,5 +7,8 @@
         ValueTask<Resume> SelectResumeByIdAsync(int resumeId);
         ValueTask<Resume> UpdateResumeAsync(Resume resume);
         ValueTask<Resume> DeleteResumeAsync(Resume resume);
+        ValueTask<Resume?> SelectResumeBySeekerIdAsync(int userId);
+        ValueTask<Resume?> SelectResumeByIdAndSeekerIdAsync(int resumeId, int userId);
+
     }
 }

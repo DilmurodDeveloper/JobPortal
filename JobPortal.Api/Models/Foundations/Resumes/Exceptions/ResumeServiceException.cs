@@ -1,8 +1,10 @@
 ﻿namespace JobPortal.Api.Models.Foundations.Resumes.Exceptions
 {
-    public class ResumeServiceException : Exception
+    public class ResumeServiceException : Xeption
     {
-        public ResumeServiceException(Exception innerException)
-            : base("An unexpected error occurred in the resume service.", innerException) { }
+        public ResumeServiceException(Xeption innerException)
+            : base(message: "An unexpected error occurred in the resume service.", 
+                  innerException) 
+        { }
     }
 }

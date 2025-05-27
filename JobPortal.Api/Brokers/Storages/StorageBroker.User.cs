@@ -8,12 +8,8 @@ namespace JobPortal.Api.Brokers.Storages
 
         public async ValueTask<User> InsertUserAsync(User user)
         {
-            using var broker = new StorageBroker(this.configuration);
-
-            EntityEntry<User> userEntityEntry = await broker.Users.AddAsync(user);
-
-            await broker.SaveChangesAsync();
-
+            EntityEntry<User> userEntityEntry = await this.Users.AddAsync(user);
+            await this.SaveChangesAsync();
             return userEntityEntry.Entity;
         }
 
@@ -21,7 +17,7 @@ namespace JobPortal.Api.Brokers.Storages
             SelectAll<User>();
 
         public async ValueTask<User> SelectUserByIdAsync(int userId) =>
-            await SelectAsync<User>(userId);
+            await SelectAsync<User>(userId) ?? throw new InvalidOperationException("User not found.");
 
         public async ValueTask<User> UpdateUserAsync(User user) =>
             await UpdateAsync(user);

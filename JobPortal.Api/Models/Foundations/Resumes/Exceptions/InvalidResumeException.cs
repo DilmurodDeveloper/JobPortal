@@ -1,8 +1,8 @@
 ﻿namespace JobPortal.Api.Models.Foundations.Resumes.Exceptions
 {
-    public class InvalidResumeException : Exception
+    public class InvalidResumeException : Xeption
     {
-        public InvalidResumeException(string message)
-            : base(message) { }
+        public InvalidResumeException()
+            : base(message: "Resume is invalid") { }
     }
 }

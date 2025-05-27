@@ -1,8 +1,9 @@
 ﻿namespace JobPortal.Api.Models.Foundations.Resumes.Exceptions
 {
-    public class ResumeValidationException : Exception
+    public class ResumeValidationException : Xeption
     {
-        public ResumeValidationException(Exception innerException)
-            : base("Resume validation error occurred.", innerException) { }
+        public ResumeValidationException(Xeption innerException)
+            : base(message: "Resume validation error occurred.", innerException) 
+        { }
     }
 }

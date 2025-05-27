@@ -1,4 +1,4 @@
-﻿namespace JobPortal.Api.DTOs.Application
+﻿namespace JobPortal.Api.DTOs.Applications
 {
     public class ApplicationCreateDto
     {

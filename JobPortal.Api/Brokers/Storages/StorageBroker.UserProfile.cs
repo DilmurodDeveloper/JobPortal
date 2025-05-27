@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
-
-namespace JobPortal.Api.Brokers.Storages
+﻿namespace JobPortal.Api.Brokers.Storages
 {
     public partial class StorageBroker
     {
@@ -8,25 +6,27 @@ namespace JobPortal.Api.Brokers.Storages
 
         public async ValueTask<UserProfile> InsertUserProfileAsync(UserProfile userProfile)
         {
-            using var broker = new StorageBroker(this.configuration);
-
-            EntityEntry<UserProfile> profileEntityEntry = await broker.UserProfiles.AddAsync(userProfile);
-
-            await broker.SaveChangesAsync();
-
+            EntityEntry<UserProfile> profileEntityEntry = await this.UserProfiles.AddAsync(userProfile);
+            await this.SaveChangesAsync();
             return profileEntityEntry.Entity;
         }
 
         public IQueryable<UserProfile> SelectAllUserProfiles() =>
-            SelectAll<UserProfile>();
+            this.SelectAll<UserProfile>();
 
-        public async ValueTask<UserProfile> SelectUserProfileByIdAsync(int userProfileId) =>
-            await SelectAsync<UserProfile>(userProfileId);
+        public async ValueTask<UserProfile> SelectUserProfileByIdAsync(int userProfileId)
+        {
+            UserProfile? profile = await this.SelectAsync<UserProfile>(userProfileId);
+            return profile ?? throw new InvalidOperationException($"UserProfile with ID {userProfileId} not found.");
+        }
+
+        public async ValueTask<UserProfile?> SelectUserProfileByUserIdAsync(int userId) =>
+            await this.UserProfiles.FirstOrDefaultAsync(profile => profile.UserId == userId);
 
         public async ValueTask<UserProfile> UpdateUserProfileAsync(UserProfile userProfile) =>
-            await UpdateAsync(userProfile);
+            await this.UpdateAsync(userProfile);
 
         public async ValueTask<UserProfile> DeleteUserProfileAsync(UserProfile userProfile) =>
-            await DeleteAsync<UserProfile>(userProfile);
+            await this.DeleteAsync<UserProfile>(userProfile);
     }
 }

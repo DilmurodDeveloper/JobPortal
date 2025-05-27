@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
-
-namespace JobPortal.Api.Brokers.Storages
+﻿namespace JobPortal.Api.Brokers.Storages
 {
     public partial class StorageBroker
     {
@@ -8,25 +6,29 @@ namespace JobPortal.Api.Brokers.Storages
 
         public async ValueTask<Application> InsertApplicationAsync(Application application)
         {
-            using var broker = new StorageBroker(this.configuration);
-
-            EntityEntry<Application> appEntityEntry = await broker.Applications.AddAsync(application);
-
-            await broker.SaveChangesAsync();
-
-            return appEntityEntry.Entity;
+            EntityEntry<Application> entry = await this.Applications.AddAsync(application);
+            await this.SaveChangesAsync();
+            return entry.Entity;
         }
 
         public IQueryable<Application> SelectAllApplications() =>
-            SelectAll<Application>();
+            this.Applications.AsQueryable();
 
-        public async ValueTask<Application> SelectApplicationByIdAsync(int applicationId) =>
-            await SelectAsync<Application>(applicationId);
+        public async ValueTask<Application?> SelectApplicationByIdAsync(int id) =>
+            await this.Applications.FindAsync(id);
 
-        public async ValueTask<Application> UpdateApplicationAsync(Application application) =>
-            await UpdateAsync(application);
+        public async ValueTask<Application> UpdateApplicationAsync(Application application)
+        {
+            this.Applications.Update(application);
+            await this.SaveChangesAsync();
+            return application;
+        }
 
-        public async ValueTask<Application> DeleteApplicationAsync(Application application) =>
-            await DeleteAsync<Application>(application);
+        public async ValueTask<Application> DeleteApplicationAsync(Application application)
+        {
+            this.Applications.Remove(application);
+            await this.SaveChangesAsync();
+            return application;
+        }
     }
 }

@@ -7,5 +7,7 @@
         ValueTask<UserProfile> SelectUserProfileByIdAsync(int profileId);
         ValueTask<UserProfile> UpdateUserProfileAsync(UserProfile profile);
         ValueTask<UserProfile> DeleteUserProfileAsync(UserProfile profile);
+        ValueTask<UserProfile?> SelectUserProfileByUserIdAsync(int userId);
+
     }
 }

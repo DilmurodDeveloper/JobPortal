@@ -1,8 +1,10 @@
 ﻿namespace JobPortal.Api.Models.Foundations.Applications.Exceptions
 {
-    public class ApplicationDependencyException : Exception
+    public class ApplicationDependencyException : Xeption
     {
         public ApplicationDependencyException(Exception innerException)
-            : base("Application dependency error occurred, contact support.", innerException) { }
+            : base(message: "Application dependency error occurred, contact support.", 
+                  innerException) 
+        { }
     }
 }

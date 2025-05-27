@@ -1,13 +1,18 @@
-﻿namespace JobPortal.Api.Services.Foundations.Resume
+﻿namespace JobPortal.Api.Services.Foundations.Resumes
 {
-    public class ResumeService : IResumeService
+    public partial class ResumeService : IResumeService
     {
-        private readonly ApplicationDbContext _db;
+        private readonly IStorageBroker _storageBroker;
+        private readonly ILoggingBroker _loggingBroker;
         private readonly IWebHostEnvironment _env;
 
-        public ResumeService(ApplicationDbContext db, IWebHostEnvironment env)
+        public ResumeService(
+            IStorageBroker storageBroker,
+            ILoggingBroker loggingBroker,
+            IWebHostEnvironment env)
         {
-            _db = db;
+            _storageBroker = storageBroker;
+            _loggingBroker = loggingBroker;
             _env = env;
         }
 
@@ -33,12 +38,38 @@
             using var stream = new FileStream(filePath, FileMode.Create);
             await file.CopyToAsync(stream);
 
-            var resume = await _db.Resumes.FirstOrDefaultAsync(r => r.SeekerId == userId);
+            var resume = await _storageBroker.SelectAllResumes()
+                            .FirstOrDefaultAsync(r => r.SeekerId == userId);
+
             if (resume != null)
             {
                 resume.FileUrl = $"/resumes/{safeFileName}";
                 resume.UpdatedAt = DateTime.UtcNow;
-                await _db.SaveChangesAsync();
+
+                await _storageBroker.UpdateResumeAsync(resume);
+
+                _loggingBroker.LogInformation($"Resume updated for userId: {userId}");
+            }
+            else
+            {
+                var newResume = new Resume
+                {
+                    SeekerId = userId,
+                    FileUrl = $"/resumes/{safeFileName}",
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    FullName = string.Empty,
+                    Email = string.Empty,
+                    PhoneNumber = string.Empty,
+                    Skills = string.Empty,
+                    Experience = string.Empty,
+                    Location = null
+                };
+
+
+                await _storageBroker.InsertResumeAsync(newResume);
+
+                _loggingBroker.LogInformation($"Resume uploaded for new userId: {userId}");
             }
 
             return $"/resumes/{safeFileName}";
@@ -67,13 +98,19 @@
                 _ => "application/octet-stream"
             };
 
+            _loggingBroker.LogInformation($"Resume retrieved for userId: {userId}");
+
             return (fileContent, contentType, Path.GetFileName(filePath));
         }
 
         public async Task<ResumeDto?> GetResumeByIdAsync(int id)
         {
-            var resume = await _db.Resumes.FindAsync(id);
-            if (resume == null) return null;
+            var resume = await _storageBroker.SelectResumeByIdAsync(id);
+            if (resume == null)
+            {
+                _loggingBroker.LogWarning($"Resume with id {id} not found.");
+                return null;
+            }
 
             return new ResumeDto
             {
@@ -89,18 +126,30 @@
 
         public async Task<bool> DeleteResumeAsync(int id, int userId)
         {
-            var resume = await _db.Resumes.FirstOrDefaultAsync(r => r.Id == id && r.SeekerId == userId);
-            if (resume == null) return false;
+            var resume = await _storageBroker.SelectAllResumes()
+                            .FirstOrDefaultAsync(r => r.Id == id && r.SeekerId == userId);
 
-            _db.Resumes.Remove(resume);
-            await _db.SaveChangesAsync();
+            if (resume == null)
+            {
+                _loggingBroker.LogWarning($"Attempted to delete non-existing resume id: {id} for userId: {userId}");
+                return false;
+            }
+
+            await _storageBroker.DeleteResumeAsync(resume);
+            _loggingBroker.LogInformation($"Deleted resume id: {id} for userId: {userId}");
             return true;
         }
 
         public async Task<bool> UpdateResumeAsync(int id, ResumeUpdateDto dto, int userId)
         {
-            var resume = await _db.Resumes.FirstOrDefaultAsync(r => r.Id == id && r.SeekerId == userId);
-            if (resume == null) return false;
+            var resume = await _storageBroker.SelectAllResumes()
+                            .FirstOrDefaultAsync(r => r.Id == id && r.SeekerId == userId);
+
+            if (resume == null)
+            {
+                _loggingBroker.LogWarning($"Attempted to update non-existing resume id: {id} for userId: {userId}");
+                return false;
+            }
 
             resume.FullName = dto.FullName;
             resume.Email = dto.Email;
@@ -109,7 +158,10 @@
             resume.Experience = dto.Experience;
             resume.UpdatedAt = DateTime.UtcNow;
 
-            await _db.SaveChangesAsync();
+            await _storageBroker.UpdateResumeAsync(resume);
+
+            _loggingBroker.LogInformation($"Updated resume id: {id} for userId: {userId}");
+
             return true;
         }
 
@@ -118,7 +170,7 @@
             if (dto.Page <= 0) dto.Page = 1;
             if (dto.PageSize <= 0 || dto.PageSize > 50) dto.PageSize = 10;
 
-            var query = _db.Resumes.AsQueryable();
+            var query = _storageBroker.SelectAllResumes();
 
             if (!string.IsNullOrWhiteSpace(dto.Skill))
             {
@@ -147,6 +199,8 @@
                     Experience = r.Experience
                 })
                 .ToListAsync();
+
+            _loggingBroker.LogInformation($"Search completed with {resumes.Count} results out of {totalCount}");
 
             return (resumes, totalCount);
         }

@@ -1,8 +1,9 @@
 ﻿namespace JobPortal.Api.Models.Foundations.JobPosts.Exceptions
 {
-    public class NullJobPostException : Exception
+    public class NullJobPostException : Xeption
     {
         public NullJobPostException()
-            : base("JobPost is null.") { }
+            : base(message: "JobPost is null.") 
+        { }
     }
 }

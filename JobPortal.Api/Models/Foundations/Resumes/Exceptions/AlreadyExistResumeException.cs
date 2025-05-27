@@ -1,8 +1,8 @@
 ﻿namespace JobPortal.Api.Models.Foundations.Resume.Exceptions
 {
-    public class AlreadyExistResumeException : Exception
+    public class AlreadyExistResumeException : Xeption
     {
-        public AlreadyExistResumeException()
-            : base("Resume already exists.") { }
+        public AlreadyExistResumeException(Exception innerException)
+            : base("Resume already exists.", innerException) { }
     }
 }

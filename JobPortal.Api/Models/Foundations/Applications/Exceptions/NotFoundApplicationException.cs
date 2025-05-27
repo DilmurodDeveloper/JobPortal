@@ -1,8 +1,9 @@
 ﻿namespace JobPortal.Api.Models.Foundations.Applications.Exceptions
 {
-    public class NotFoundApplicationException : Exception
+    public class NotFoundApplicationException : Xeption
     {
-        public NotFoundApplicationException(Guid applicationId)
-            : base($"Couldn't find application with id: {applicationId}") { }
+        public NotFoundApplicationException(int applicationId)
+            : base(message: $"Couldn't find application with id: {applicationId}") 
+        { }
     }
 }

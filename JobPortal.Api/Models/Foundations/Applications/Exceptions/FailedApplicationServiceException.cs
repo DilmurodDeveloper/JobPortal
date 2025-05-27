@@ -1,8 +1,10 @@
 ﻿namespace JobPortal.Api.Models.Foundations.Applications.Exceptions
 {
-    public class FailedApplicationServiceException : Exception
+    public class FailedApplicationServiceException : Xeption
     {
         public FailedApplicationServiceException(Exception innerException)
-            : base("Failed application service error occurred, contact support.", innerException) { }
+            : base(message: "Failed application service error occurred, contact support.", 
+                  innerException) 
+        { }
     }
 }

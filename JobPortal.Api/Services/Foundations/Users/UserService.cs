@@ -1,65 +1,82 @@
 ﻿namespace JobPortal.Api.Services.Foundations.Users
 {
-    public class UserService : IUserService
+    public partial class UserService : IUserService
     {
-        private readonly ApplicationDbContext _context;
-        private readonly IWebHostEnvironment _env;
+        private readonly IStorageBroker storageBroker;
+        private readonly ILoggingBroker loggingBroker;
+        private readonly IWebHostEnvironment webHostEnvironment;
 
-        public UserService(ApplicationDbContext context, IWebHostEnvironment env)
+        public UserService(
+            IStorageBroker storageBroker,
+            ILoggingBroker loggingBroker,
+            IWebHostEnvironment webHostEnvironment)
         {
-            _context = context;
-            _env = env;
+            this.storageBroker = storageBroker;
+            this.loggingBroker = loggingBroker;
+            this.webHostEnvironment = webHostEnvironment;
         }
 
         public async Task<User> GetMyUserAsync(int userId)
         {
-            var user = await _context.Users
-                .Include(u => u.Profile)
-                .FirstOrDefaultAsync(u => u.Id == userId);
+            var user = await this.storageBroker.SelectUserByIdAsync(userId);
 
             if (user == null)
-                throw new KeyNotFoundException("User not found");
+            {
+                var exception = new KeyNotFoundException("User not found.");
+                this.loggingBroker.LogError(exception);
+                throw exception;
+            }
 
             return user;
         }
 
         public async Task UpdateMyUserAsync(int userId, User updatedUser)
         {
-            var user = await _context.Users.FindAsync(userId);
+            var user = await this.storageBroker.SelectUserByIdAsync(userId);
+
             if (user == null)
-                throw new KeyNotFoundException("User not found");
+            {
+                var exception = new KeyNotFoundException("User not found.");
+                this.loggingBroker.LogError(exception);
+                throw exception;
+            }
 
             user.FirstName = updatedUser.FirstName ?? user.FirstName;
             user.LastName = updatedUser.LastName ?? user.LastName;
             user.Email = updatedUser.Email ?? user.Email;
             user.UpdatedAt = DateTime.UtcNow;
 
-            await _context.SaveChangesAsync();
+            await this.storageBroker.UpdateUserAsync(user);
         }
 
         public async Task DeleteMyAccountAsync(int userId)
         {
-            var user = await _context.Users.FindAsync(userId);
+            var user = await this.storageBroker.SelectUserByIdAsync(userId);
+
             if (user == null)
-                throw new KeyNotFoundException("User not found");
+            {
+                var exception = new KeyNotFoundException("User not found.");
+                this.loggingBroker.LogError(exception);
+                throw exception;
+            }
 
             user.Status = UserStatus.Blocked;
             user.UpdatedAt = DateTime.UtcNow;
 
-            await _context.SaveChangesAsync();
+            await this.storageBroker.UpdateUserAsync(user);
         }
 
         public async Task<bool> PatchUserAsync(int userId, JsonPatchDocument<User> patchDoc)
         {
-            var user = await _context.Users.FindAsync(userId);
+            var user = await this.storageBroker.SelectUserByIdAsync(userId);
+
             if (user == null)
                 return false;
 
             patchDoc.ApplyTo(user);
-
             user.UpdatedAt = DateTime.UtcNow;
 
-            await _context.SaveChangesAsync();
+            await this.storageBroker.UpdateUserAsync(user);
 
             return true;
         }
@@ -76,7 +93,7 @@
                 throw new ArgumentException("Unsupported file type.");
 
             var fileName = $"avatar_{userId}{extension}";
-            var avatarFolder = Path.Combine(_env.WebRootPath, "avatars");
+            var avatarFolder = Path.Combine(this.webHostEnvironment.WebRootPath, "avatars");
 
             if (!Directory.Exists(avatarFolder))
                 Directory.CreateDirectory(avatarFolder);
@@ -88,12 +105,13 @@
                 await file.CopyToAsync(stream);
             }
 
-            var user = await _context.Users.FindAsync(userId);
+            var user = await this.storageBroker.SelectUserByIdAsync(userId);
+
             if (user != null)
             {
                 user.AvatarUrl = $"/avatars/{fileName}";
                 user.UpdatedAt = DateTime.UtcNow;
-                await _context.SaveChangesAsync();
+                await this.storageBroker.UpdateUserAsync(user);
             }
 
             return $"/avatars/{fileName}";

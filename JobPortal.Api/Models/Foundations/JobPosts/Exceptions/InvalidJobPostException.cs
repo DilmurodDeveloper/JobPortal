@@ -1,8 +1,9 @@
 ﻿namespace JobPortal.Api.Models.Foundations.JobPosts.Exceptions
 {
-    public class InvalidJobPostException : Exception
+    public class InvalidJobPostException : Xeption
     {
-        public InvalidJobPostException(string message)
-            : base(message) { }
+        public InvalidJobPostException()
+            : base(message: "Job Post is invalid") 
+        { }
     }
 }

@@ -1,174 +1,237 @@
 ﻿namespace JobPortal.Api.Services.Foundations.JobPosts
 {
-    public class JobPostService : IJobPostService
+    public partial class JobPostService : IJobPostService
     {
-        private readonly ApplicationDbContext _db;
+        private readonly IStorageBroker storageBroker;
+        private readonly ILoggingBroker loggingBroker;
 
-        public JobPostService(ApplicationDbContext db)
+        public JobPostService(
+            IStorageBroker storageBroker,
+            ILoggingBroker loggingBroker)
         {
-            _db = db;
+            this.storageBroker = storageBroker;
+            this.loggingBroker = loggingBroker;
         }
 
         public async Task<(List<JobPost> Jobs, int TotalCount)> GetAllJobsAsync(JobSearchDto searchDto)
         {
-            if (searchDto.Page <= 0) searchDto.Page = 1;
-            if (searchDto.PageSize <= 0 || searchDto.PageSize > 50) searchDto.PageSize = 10;
+            try
+            {
+                if (searchDto.Page <= 0) searchDto.Page = 1;
+                if (searchDto.PageSize <= 0 || searchDto.PageSize > 50) searchDto.PageSize = 10;
 
-            var query = _db.JobPosts.AsQueryable();
+                IQueryable<JobPost> query = this.storageBroker.SelectAllJobPosts();
 
-            if (!string.IsNullOrWhiteSpace(searchDto.Title))
-                query = query.Where(j => j.Title.Contains(searchDto.Title));
+                if (!string.IsNullOrWhiteSpace(searchDto.Title))
+                    query = query.Where(j => j.Title.Contains(searchDto.Title));
 
-            if (!string.IsNullOrWhiteSpace(searchDto.Location))
-                query = query.Where(j => j.Location.Contains(searchDto.Location));
+                if (!string.IsNullOrWhiteSpace(searchDto.Location))
+                    query = query.Where(j => j.Location.Contains(searchDto.Location));
 
-            if (searchDto.JobType.HasValue)
-                query = query.Where(j => j.JobType == searchDto.JobType.Value);
+                if (searchDto.JobType.HasValue)
+                    query = query.Where(j => j.JobType == searchDto.JobType.Value);
 
-            var totalCount = await query.CountAsync();
+                int totalCount = await query.CountAsync();
 
-            var jobs = await query
-                .OrderByDescending(j => j.CreatedAt)
-                .Skip((searchDto.Page - 1) * searchDto.PageSize)
-                .Take(searchDto.PageSize)
-                .ToListAsync();
+                List<JobPost> jobs = await query
+                    .OrderByDescending(j => j.CreatedAt)
+                    .Skip((searchDto.Page - 1) * searchDto.PageSize)
+                    .Take(searchDto.PageSize)
+                    .ToListAsync();
 
-            return (jobs, totalCount);
+                return (jobs, totalCount);
+            }
+            catch (Exception ex)
+            {
+                this.loggingBroker.LogError(ex);
+                throw;
+            }
         }
 
         public async Task<JobPost?> GetJobByIdAsync(int id)
         {
-            return await _db.JobPosts.FindAsync(id);
+            try
+            {
+                return await this.storageBroker.SelectJobPostByIdAsync(id);
+            }
+            catch (Exception ex)
+            {
+                this.loggingBroker.LogError(ex);
+                throw;
+            }
         }
 
         public async Task<JobPost> CreateJobAsync(JobCreateDto dto, int userId)
         {
-            var jobPost = new JobPost
+            try
             {
-                Title = dto.Title,
-                Description = dto.Description,
-                Company = dto.Company,
-                Location = dto.Location,
-                Salary = dto.Salary,
-                JobType = dto.JobType,
-                UserId = userId,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
+                JobPost jobPost = new JobPost
+                {
+                    Title = dto.Title,
+                    Description = dto.Description,
+                    Company = dto.Company,
+                    Location = dto.Location,
+                    Salary = dto.Salary,
+                    JobType = dto.JobType,
+                    UserId = userId,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
 
-            await _db.JobPosts.AddAsync(jobPost);
-            await _db.SaveChangesAsync();
-
-            return jobPost;
+                return await this.storageBroker.InsertJobPostAsync(jobPost);
+            }
+            catch (Exception ex)
+            {
+                this.loggingBroker.LogError(ex);
+                throw;
+            }
         }
 
         public async Task<bool> UpdateJobAsync(int id, JobUpdateDto dto)
         {
-            var existingJob = await _db.JobPosts.FindAsync(id);
-            if (existingJob == null)
-                return false;
+            try
+            {
+                JobPost? existingJob = await this.storageBroker.SelectJobPostByIdAsync(id);
+                if (existingJob == null)
+                    return false;
 
-            existingJob.Title = dto.Title!;
-            existingJob.Description = dto.Description!;
-            existingJob.Company = dto.Company!;
-            existingJob.Location = dto.Location!;
-            existingJob.Salary = dto.Salary ?? 0m;
-            existingJob.JobType = dto.JobType ?? JobType.FullTime;
-            existingJob.UpdatedAt = DateTime.UtcNow;
+                existingJob.Title = dto.Title ?? existingJob.Title;
+                existingJob.Description = dto.Description ?? existingJob.Description;
+                existingJob.Company = dto.Company ?? existingJob.Company;
+                existingJob.Location = dto.Location ?? existingJob.Location;
+                existingJob.Salary = dto.Salary ?? existingJob.Salary;
+                existingJob.JobType = dto.JobType ?? existingJob.JobType;
+                existingJob.UpdatedAt = DateTime.UtcNow;
 
-            await _db.SaveChangesAsync();
-            return true;
+                await this.storageBroker.UpdateJobPostAsync(existingJob);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                this.loggingBroker.LogError(ex);
+                throw;
+            }
         }
 
         public async Task<bool> PatchJobAsync(int id, JobUpdateDto dto)
         {
-            var existingJob = await _db.JobPosts.FindAsync(id);
-            if (existingJob == null)
-                return false;
+            try
+            {
+                JobPost? existingJob = await this.storageBroker.SelectJobPostByIdAsync(id);
+                if (existingJob == null)
+                    return false;
 
-            if (dto.Title != null)
-                existingJob.Title = dto.Title;
+                if (!string.IsNullOrWhiteSpace(dto.Title))
+                    existingJob.Title = dto.Title;
 
-            if (dto.Description != null)
-                existingJob.Description = dto.Description;
+                if (!string.IsNullOrWhiteSpace(dto.Description))
+                    existingJob.Description = dto.Description;
 
-            if (dto.Company != null)
-                existingJob.Company = dto.Company;
+                if (!string.IsNullOrWhiteSpace(dto.Company))
+                    existingJob.Company = dto.Company;
 
-            if (dto.Location != null)
-                existingJob.Location = dto.Location;
+                if (!string.IsNullOrWhiteSpace(dto.Location))
+                    existingJob.Location = dto.Location;
 
-            if (dto.Salary != default)
-                existingJob.Salary = dto.Salary.GetValueOrDefault();
+                if (dto.Salary.HasValue)
+                    existingJob.Salary = dto.Salary.Value;
 
+                if (dto.JobType.HasValue)
+                    existingJob.JobType = dto.JobType.Value;
 
-            if (dto.JobType != default)
-                existingJob.JobType = dto.JobType ?? JobType.FullTime;
+                existingJob.UpdatedAt = DateTime.UtcNow;
 
-            existingJob.UpdatedAt = DateTime.UtcNow;
-
-            await _db.SaveChangesAsync();
-            return true;
+                await this.storageBroker.UpdateJobPostAsync(existingJob);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                this.loggingBroker.LogError(ex);
+                throw;
+            }
         }
 
         public async Task<bool> DeleteJobAsync(int id)
         {
-            var job = await _db.JobPosts.FindAsync(id);
-            if (job == null)
-                return false;
+            try
+            {
+                JobPost? job = await this.storageBroker.SelectJobPostByIdAsync(id);
+                if (job == null)
+                    return false;
 
-            _db.JobPosts.Remove(job);
-            await _db.SaveChangesAsync();
-            return true;
+                await this.storageBroker.DeleteJobPostAsync(job);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                this.loggingBroker.LogError(ex);
+                throw;
+            }
         }
 
         public async Task<bool> ApplyToJobAsync(int jobId, int seekerId)
         {
-            var job = await _db.JobPosts.FindAsync(jobId);
-            if (job == null) return false;
-
-            var alreadyApplied = await _db.Applications
-                .AnyAsync(a => a.JobPostId == jobId && a.UserId == seekerId);
-
-            if (alreadyApplied) return false;
-
-            var application = new ApplicationModel
+            try
             {
-                JobPostId = jobId,
-                UserId = seekerId,
-                Status = ApplicationStatus.Pending,
-                AppliedAt = DateTime.UtcNow
-            };
+                JobPost? job = await this.storageBroker.SelectJobPostByIdAsync(jobId);
+                if (job == null)
+                    return false;
 
-            await _db.Applications.AddAsync(application);
-            await _db.SaveChangesAsync();
+                bool alreadyApplied = await this.storageBroker
+                    .SelectAllApplications()
+                    .AnyAsync(a => a.JobPostId == jobId && a.UserId == seekerId);
 
-            return true;
+                if (alreadyApplied)
+                    return false;
+
+                var application = new ApplicationModel
+                {
+                    JobPostId = jobId,
+                    UserId = seekerId,
+                    Status = ApplicationStatus.Pending,
+                    AppliedAt = DateTime.UtcNow
+                };
+
+                await this.storageBroker.InsertApplicationAsync(application);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                this.loggingBroker.LogError(ex);
+                throw;
+            }
         }
 
         public async Task<List<ApplicationDto>?> GetApplicantsAsync(int jobId, int employerId)
         {
-            var job = await _db.JobPosts.Include(j => j.User).FirstOrDefaultAsync(j => j.Id == jobId);
-            if (job == null || job.UserId != employerId)
-                return null;
+            try
+            {
+                JobPost? job = await this.storageBroker.SelectJobPostByIdAsync(jobId);
+                if (job == null || job.UserId != employerId)
+                    return null;
 
-            var applications = await _db.Applications
-                .Where(a => a.JobPostId == jobId)
-                .Include(a => a.User)
-                .Select(a => new ApplicationDto
-                {
-                    Id = a.Id,
-                    JobId = a.JobPostId,
-                    SeekerId = a.UserId,
-                    Status = a.Status.ToString(),
-                    CreatedAt = a.AppliedAt,
-                    JobTitle = job.Title,
-                    SeekerName = a.User.FirstName + " " + a.User.LastName
-                })
-                .ToListAsync();
+                var applications = await this.storageBroker.SelectAllApplications()
+                    .Where(a => a.JobPostId == jobId)
+                    .Include(a => a.User)
+                    .Select(a => new ApplicationDto
+                    {
+                        Id = a.Id,
+                        JobId = a.JobPostId,
+                        SeekerId = a.UserId,
+                        Status = a.Status.ToString(),
+                        CreatedAt = a.AppliedAt,
+                        JobTitle = job.Title,
+                        SeekerName = a.User.FirstName + " " + a.User.LastName
+                    })
+                    .ToListAsync();
 
-            return applications;
+                return applications;
+            }
+            catch (Exception ex)
+            {
+                this.loggingBroker.LogError(ex);
+                throw;
+            }
         }
-
     }
 }

@@ -1,8 +1,9 @@
 ﻿namespace JobPortal.Api.Models.Foundations.Users.Exceptions
 {
-    public class NotFoundUserException : Exception
+    public class NotFoundUserException : Xeption
     {
         public NotFoundUserException(int userId)
-            : base($"Couldn't find user with id: {userId}") { }
+            : base(message: $"Couldn't find user with id: {userId}") 
+        { }
     }
 }

@@ -1,8 +1,9 @@
 ﻿namespace JobPortal.Api.Models.Foundations.Resumes.Exceptions
 {
-    public class NotFoundResumeException : Exception
+    public class NotFoundResumeException : Xeption
     {
         public NotFoundResumeException(int id)
-            : base($"Resume with ID {id} was not found.") { }
+            : base(message: $"Resume with ID {id} was not found.") 
+        { }
     }
 }

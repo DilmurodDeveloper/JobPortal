@@ -8,25 +8,29 @@ namespace JobPortal.Api.Brokers.Storages
 
         public async ValueTask<JobPost> InsertJobPostAsync(JobPost jobPost)
         {
-            using var broker = new StorageBroker(this.configuration);
-
-            EntityEntry<JobPost> jobPostEntityEntry = await broker.JobPosts.AddAsync(jobPost);
-
-            await broker.SaveChangesAsync();
-
+            EntityEntry<JobPost> jobPostEntityEntry = await this.JobPosts.AddAsync(jobPost);
+            await this.SaveChangesAsync();
             return jobPostEntityEntry.Entity;
         }
 
         public IQueryable<JobPost> SelectAllJobPosts() =>
             SelectAll<JobPost>();
 
-        public async ValueTask<JobPost> SelectJobPostByIdAsync(int jobPostId) =>
+        public async ValueTask<JobPost?> SelectJobPostByIdAsync(int jobPostId) =>
             await SelectAsync<JobPost>(jobPostId);
 
-        public async ValueTask<JobPost> UpdateJobPostAsync(JobPost jobPost) =>
-            await UpdateAsync(jobPost);
+        public async ValueTask<JobPost> UpdateJobPostAsync(JobPost jobPost)
+        {
+            EntityEntry<JobPost> jobPostEntityEntry = this.JobPosts.Update(jobPost);
+            await this.SaveChangesAsync();
+            return jobPostEntityEntry.Entity;
+        }
 
-        public async ValueTask<JobPost> DeleteJobPostAsync(JobPost jobPost) =>
-            await DeleteAsync<JobPost>(jobPost);
+        public async ValueTask<JobPost> DeleteJobPostAsync(JobPost jobPost)
+        {
+            EntityEntry<JobPost> jobPostEntityEntry = this.JobPosts.Remove(jobPost);
+            await this.SaveChangesAsync();
+            return jobPostEntityEntry.Entity;
+        }
     }
 }

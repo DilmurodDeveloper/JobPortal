@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
-
-namespace JobPortal.Api.Brokers.Storages
+﻿namespace JobPortal.Api.Brokers.Storages
 {
     public partial class StorageBroker
     {
@@ -8,11 +6,9 @@ namespace JobPortal.Api.Brokers.Storages
 
         public async ValueTask<Resume> InsertResumeAsync(Resume resume)
         {
-            using var broker = new StorageBroker(this.configuration);
+            EntityEntry<Resume> resumeEntityEntry = await this.Resumes.AddAsync(resume);
 
-            EntityEntry<Resume> resumeEntityEntry = await broker.Resumes.AddAsync(resume);
-
-            await broker.SaveChangesAsync();
+            await this.SaveChangesAsync();
 
             return resumeEntityEntry.Entity;
         }
@@ -20,8 +16,17 @@ namespace JobPortal.Api.Brokers.Storages
         public IQueryable<Resume> SelectAllResumes() =>
             SelectAll<Resume>();
 
-        public async ValueTask<Resume> SelectResumeByIdAsync(int resumeId) =>
-            await SelectAsync<Resume>(resumeId);
+        public async ValueTask<Resume> SelectResumeByIdAsync(int resumeId)
+        {
+            Resume? resume = await SelectAsync<Resume>(resumeId);
+            return resume ?? throw new InvalidOperationException($"Resume with ID {resumeId} not found.");
+        }
+
+        public async ValueTask<Resume?> SelectResumeBySeekerIdAsync(int userId) =>
+            await this.Resumes.FirstOrDefaultAsync(r => r.SeekerId == userId);
+
+        public async ValueTask<Resume?> SelectResumeByIdAndSeekerIdAsync(int resumeId, int userId) =>
+            await this.Resumes.FirstOrDefaultAsync(r => r.Id == resumeId && r.SeekerId == userId);
 
         public async ValueTask<Resume> UpdateResumeAsync(Resume resume) =>
             await UpdateAsync(resume);
